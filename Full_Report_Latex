@@ -1,0 +1,847 @@
+\documentclass[12pt]{article}
+\usepackage{fullpage}
+\usepackage{verbatim}
+\usepackage{graphicx}
+%\usepackage[justification=centering,margin=2cm]{caption}
+\usepackage{subcaption}
+\usepackage{graphics}
+\usepackage[section]{placeins}
+\usepackage{amsmath}
+
+%spacing fix
+\setlength{\parskip}{3pt}
+
+%indent fix
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+%\renewcommand{\indent}{\hspace*{\tindent}}
+
+\begin{document}
+\begin{center}
+\LARGE
+\bf{Analysis of Public Score in Auto Insurance Using Regression Techniques}
+\\[.2in]
+\normalsize
+by
+\\[.2in]
+Karina Gaeta, Daniel Porter, and Mengnan Qi\\
+Department of Probability and Statistics\\
+University of California, Santa Barbara
+\\[.4in]
+Abstract
+\\[.2in]
+\end{center}
+Financial history, in particular credit scores, has a notable and consistent correlation with an auto insurance policy risk. As a result, a large majority of insurance companies use credit score information as one of the many factors involved within the underwriting process of a policy. Recently, however, the use of credit scores in auto insurance has received a lot of criticism as being an unfair method of determining premium rates. This has caused several states in the US to prohibit the use of credit scores to determine premium rates for auto insurance policies. With auto insurance companies losing a strong risk factor, new research by LexisNexis has resulted in the creation of public scores, a new innovative way of assessing risk based off of public driver information. Using data from CSAA Insurance Group, we investigated the correlation between public score and loss frequency or severity, whether that correlation can predict future frequency and severity outcomes, and how the results compare to the use of credit scores as a risk factor. Statistical techniques, such as data redefining and Generalized Linear Models (GLM), were used to produce predictive models.   
+\pagebreak
+
+\section{ Introduction}\label{sec:Introduction}
+
+The ultimate goal of the research group was to determine whether Public Score is a predictive variable for loss frequency, and possibly loss severity, for any given auto insurance policy. Taking this a little further, we also wanted to identify any possible interactions and correlations between Public Score and the other variables using a multivariate loss cost modeling approach. After receiving the raw data sets, we became familiar with it in order to recognize and identify any outliers and illogical data, which were then accordingly dealt with. Once the data was organized into a manageable form, a multivariate regression analysis was able to be performed. However, realizing that the data is not Gaussian, ordinary linear models had to be dismissed in the regression analysis. Moving further with the project, Generalized Linear Models were used to provide more meaningful results in the regression analysis.
+
+\section{ Raw Data}\label{sec:Raw-Data}
+
+The raw data provided for the research project included two main data sets: Collision (COLL) and Property Damage (PD). After reviewing both data sets, it was determined that in many ways they almost mirror each other, which would make discussing both separately redundant. Instead we will only discuss the COLL data set and make references to PD when there is a significant difference. Within the COLL data set there were originally 19 variables, including both categorical and numerical, which comprised of just under a million observations. 
+
+\begin{figure}[hbtp]
+\centering
+\bf
+\includegraphics[scale=.7]{Images/Figure1a.png}
+\caption{A snapshot of a few columns from the raw data file.}
+\end{figure}
+
+The categorical variables, which take non-numeric values, are as follows:
+
+\begin{itemize}
+\item 
+The marital status of the driver
+\item
+The gender of the driver
+\item
+The prior bodily injury limitations the driver had with CSAA or other carriers (both the dollar amount in thousands of coverage per person and the dollar amount in thousands of coverage per accident)
+\item
+The vehicle density of the policy territory (the number of vehicles per square mile in a given zip code)
+\item
+The type of vehicle the driver owns (refer to Figure 2)
+
+\end{itemize}
+
+
+\begin{figure}[!htb]
+\centering
+\bf
+\includegraphics[scale=.65]{Images/Figure1.png}
+\caption{Detail Description of Vehicle Type Symbol. \cite{memo2013}}
+\end{figure}
+
+
+The numeric variables in the data set include the following:
+
+\begin{itemize}
+\item
+The year the insurance policy became effective
+\item
+The type of collision deductible for the policy (or the physical damage limit for the PD dataset)
+\item
+The number of vehicles and drivers in the policy
+\item
+The age of the driver 
+\item
+The number of driver penalty points of the individual (a point system created by CSAA; more points correlate to more vehicle tickets or accidents)
+\item
+The credit score of the driver
+\item
+The public score of the driver
+\item
+The insurance persistency of the driver (in years)
+\item
+The age of the driver's vehicle
+\item
+The number of claims the driver has obtained
+\item
+The incurred losses accumulated for the driver
+\item
+The earned exposure for that record (One vehicle insured for one year represents one exposure for auto insurance. Earned exposures represent the portion of exposures for which coverage has already been provided as of a certain point in time \cite{memo2013}.)
+
+\end{itemize}
+
+The majority of these variables, both categorical and numeric, were used as predictive variables while only three contained a different function. 
+
+\begin{itemize}
+\item
+Number of Claims was used as a response variable indicating claim frequency.
+\item
+Total Losses was used as a response variable indicating claim severity.
+\item
+Earned Exposure was used as either a weight or offset.
+\end{itemize}
+
+\subsection{ Modification of Categorical Data}\label{sec:Mod-Cat-Data}
+
+Each of the categorical variables contained two or more different levels. The categorical variables that contained more than two levels were Vehicle Type (21), Car Density (61) and Prior Bodily Injury Limit (11).
+In order to reduce the amount of levels within a categorical variable, the Car Density and Vehicle Type variables were manipulated. The Car Density values were converted into a numeric value by manipulating its original range form into the median of that range, while the vehicle types were sorted into larger groups with similar exposures. The Vehicle Type sorting was based primarily on size for average vehicles and type for specialty vehicles.
+
+The Vehicle Type variable was condensed to the following 8 groups:
+
+\begin{itemize}
+\item
+Small size vehicle (AC, AN, GC)
+\item
+Medium size vehicle (AZ, AK, AI)
+\item
+Large size vehicle (AQ, AE)
+\item
+Pick-ups (AU, AR, AO)
+\item
+High exposure vehicle (AY, AJ, AH, AD)
+\item
+Van (AV, AW, AX, AP)
+\item
+Limited production vehicle (AS)
+\item
+Non-owner vehicle (NO)
+
+\end{itemize}
+All of the categorical variables were given flags, which take either the value 1 or 0 depending on whether a condition is true or false, respectively. Some examples are:
+
+\begin{itemize}
+\item
+Whether the driver is male
+\item
+Whether the driver is single
+\item
+Whether the prior bodily injury limit is 100/300
+\item
+Whether the vehicle type is a large size vehicle
+\end{itemize}
+
+Finally, select continuous variables were converted into categorical variables by grouping them into bins. In particular, the continuous Driver Age variable was grouped into 5 categorical bins, while Year, Collision Deductible, Number of Vehicles, and Number of Drivers were also changed into factors.
+
+\subsection{ Subset of Original Dataset}\label{sec:Subset-Data}
+
+The raw data set contained numerous observations that had both missing and unrealistic values. A subset was taken in order to eliminate these types of unwanted data, which consisted of the following conditions:
+
+\begin{itemize}
+\item
+No missing value in each observation
+\item
+No driver age younger than 16
+\item
+No vehicle age smaller than -1, which represents a new car
+
+\end{itemize}
+This resulted in reducing the data set to about 875,000 observations in COLL and 955,000 observations in PD along with the original 19 variables. 
+
+\subsection{ Credit Score and Public Score}\label{sec:Scores}
+
+Credit Scores range from 362 to 999, while Public Scores range from 383 to 999, shown in Figure 3. 
+%
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+	\centering
+	\includegraphics[width=3in,height=2.6in]{Images/Capture1.png}
+	\caption{Credit Score}
+	\label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+	\centering
+	\includegraphics[width=3in,height=2.6in]{Images/Capture2.png}
+	\caption{Public Score}
+ 	\label{fig:sub2}
+\end{subfigure}
+\caption{Distribution of each score before modification.}
+\label{fig:test}
+\end{figure}
+%
+However, the scores of 998 and 999 do not represent an outstanding credit history. A score of 998 indicates an absence of credit history, possibly from a minor, and a score of 999 is due to lack of information for determination. The correlation between Credit Score and Public Score is about $40\%$.
+
+There are 11461 records that lack a Credit Score and 13077 records that lack a Public Score. Flags were created within both Credit Score and Public Score in order to provide a more comprehensive understanding of their meaning. We began this process by creating a new variable for both Credit Score and Public Score, and created the following flags: typical scores that are neither 998 nor 999 were flagged as 0; scores indicating an absence of credit history were flagged as 1; scores indicating a lack of information were flagged as 2. Finally, these new variables for both Credit Score and Public Score were treated as categorical variables containing three levels: 0, 1, and 2.
+
+The Credit Score and Public Score variables were separated into bins that were based on the exposure amount within the data set for both COLL and PD. A roughly equal amount of exposure was placed into 10 bins per score (excluding the instance of a lack of score or history), creating the score bins found in Figure 4 and later within Figures in the Results section of this report. Since the COLL and PD data sets have different numbers of observations, the total Earned Exposure is different in each set. Therefore, the bin ranges for Credit Score and Public Score differ for each set.
+
+A plot was produced for the Public Score bins which depicts the frequency of each score bin producing a claim. The frequency is based on the information provided within the original data set and is a measure of the rate at which claims occur. It is calculated as:
+%
+\begin{align}
+\text{Frequency} &= \frac{\text {Number of Claims}}{\text{Number of Exposures}}.
+\end{align}
+
+Using this formula, a frequency of a claim occurring was produced within each score bin five different times using five data samples, each comprised of a random 20\% of the full data set; this was done for both COLL and PD.
+The mean, maximum and minimum were extracted from the five frequencies, with the latter two used to create ranges for each plotted score. The final plot for both PD and COLL can be seen in Figure 4.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=3in,height=2.6in]{Images/PD_PUBLIC_NEWONEWAY.pdf}
+  \caption{Property Damage Data Set}
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=3in,height=2.6in]{Images/COLL_NEW_ONEWAY.pdf}
+  \caption{Collision Data Set}
+  \label{fig:sub2}
+\end{subfigure}
+\caption{Frequency of a claim for each Public Score bin based off of the data set (in green) along with bands indicating the maximum and minimum for each frequency (in grey).}
+\label{fig:test}
+\end{figure}
+
+The COLL data set has, overall, a decreasing frequency for higher score bins. This is an indication that policies with higher public scores are less frequently involved in an accident. However the PD data set plot obtains a more erratic fluctuation and does not provide as clear of an interpretation. There are various instances where the frequency increases within the higher score ranges in both curves, but in particular the plot obtained from the PD data set in Figure 4a. The PD data set does not contain a consistent pattern or trend; this indicates that there is no clear correlation between Public Score bins and frequency. There does, however, appear to be a slight distinction around the 700 score: A score of 700 and above has relatively lower frequency amounts than scores lower than 700. However, after around the 700 score bin there is no clear reason why one score would have less frequency of claims than another. Although it is not entirely clear why the frequencies seem to fluctuate regardless of the score bin, it could be attributed to other predictive factors such as driver age or gender.
+
+\FloatBarrier
+
+\subsection{ Summary of Other Variables}\label{sec:Var-Summary}
+
+Underage driver observations were eliminated, resulting in the Driver Age ranging from 16 to 96 years old. Figure 5b displays the distribution of the insured ages, which notably shows a median of 51 as well as a large amount of drivers being 60 years of age. The subset approximately divides the insured drivers into 47\% males and 53\% females; the age distribution does not significantly vary between the two sexes. The years in which the loss severity incurred within the total allowed claims ranges from 2010 to 2012. Since only 9850 of the 914367 records incurred losses, the histogram in Figure 5a only containing these losses provides a much clearer understanding of severity within the data set. A majority of the loss amounts are under \$10,000, with the median loss amount varying for each of the three years: \$1,935 in 2010, \$2,092 in 2011, and \$2,462 in 2012. Of the policies containing a loss, the Number of Claims was predominantly 1, whereas only 2.5\% had 2 claims and 0.15\% had 3. Table 1 displays a summary of the remaining number of predictive variables and whether or not they are numerical or categorical (either binary or banded); this table excludes the Unique Key variable, which we did not use within our modeling. Note that the Collision Deductible is only used in the Collision data set and the Property Damage Limit is only used in the Property Damage data set. 
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+	\includegraphics[width=3in,height=2.6in]{Images/coll_total_loss.pdf}
+\caption{Total Losses}
+	\label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+	\centering
+	\includegraphics[width=3in,height=2.6in]{Images/Capture3.png}
+\caption{Driver Age}
+ 	\label{fig:sub2}
+\end{subfigure}
+\caption{Distribution of Total Losses and Driver Age.}
+\label{fig:test}
+\end{figure}
+
+\begin{table}[!htb] 
+%\centering
+\resizebox{1\columnwidth}{!}{%
+\begin{tabular}{|l|l|l|}
+\hline                                                        
+\multicolumn{1}{|c}{Driver Variables} & \multicolumn{1}{|c}{Vehicle Variables} & \multicolumn{1}{|c|}{Policy Variables}   \\ \hline
+Driver Age (Banded Factor)      & Collision Deductible (Banded Factor) & Year (Banded Factor)                     \\
+Driver Penalty Points (Numeric) & Vehicle Age (Numeric)                & Property Damage Limit (Banded Factor)    \\
+Driver Gender (Binary)          & Vehicle Type (Banded Factor)         & Collision Deductible (Banded Factor)       \\
+                                &                                      & Number of Drivers (Banded Factor)        \\
+                                &                                      & Number of Vehicles (Banded Factor)       \\
+                                &                                      & Marital Status (Binary)                  \\
+                                &                                      & Public Score (Banded Factor) \\
+                                &                                      & Credit Score (Banded Factor)        \\
+                                &                                      & Insurance Persistency (Numeric)          \\
+                                &                                      & Car Density (Numeric)                    \\
+                                &                                      & Prior Bodily Injury (Banded Factor) \\ \hline
+\end{tabular}%
+}
+\caption{Summary of Remaining Variables.} 
+\label{fig:test}
+\end{table}
+
+Since one of the main purposes of this research project is to determine whether or not Public Score would be a suitable replacement for Credit Score in order to predict loss frequency and severity, one of the first things we thought would be appropriate to find was whether or not there was any correlation between the two variables. Figure 6 displays a scatter plot that attempts to visually show a correlation between Credit Score and Public Score. Although there is definitely not a clear one-to-one correlation between the two variables, it is apparent that there may be a slight correlation between them. Figure 6 shows that a majority of policyholders have both Credit Scores and Public Scores between 700 and 800. Also, a policyholder with a low Credit Score typically has a relatively lower Public Score, and a policyholder with a high Credit Score typically has a relatively higher Public Score. 
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=3in,height=2.6in]{Images/Credit_Score_vs_Public_Score_Plot.png}
+\caption{Correlation Plot of Credit Score vs. Public Score. Darker region shows a higher concentration of observations.}
+\end{figure}
+%
+We were also interested to see whether or not there was a correlation between the Driver Age variable of a policy and that policy's Credit Score or Public Score. In the following scatter plots, there does not seem to be any clear correlation either between Driver Age and Credit Score or between Driver Age and Public Score. However, in both of the plots seen in Figure 7, it does seem apparent that the older drivers, from age 60 and above, generally tend to have relatively higher Credit Scores and Public Scores than younger drivers. Few drivers over the age of 60 have a Credit Score or a Public Score below 500.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3in,height=2.6in]{Images/Driver_Age_vs_Credit_Score_Smooth_Plot.png}
+\caption{Driver Age vs. Credit Score.}
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3in,height=2.6in]{Images/Driver_Age_vs_Public_Score_Smooth_Plot.png}
+\caption{Driver Age vs. Public Score.}
+  \label{fig:sub2}
+\end{subfigure}
+\caption{Correlation Plots. Darker region shows a higher concentration of observations.}
+\label{fig:test}
+\end{figure}
+%\FloatBarrier
+Because the scatter plot could not show any clear correlations either between Driver Age and Credit Score or Driver Age and Public Score, the same variables were plotted against each other again, but this time with each of the variables broken up into bins. Driver Age, Credit Score, and Public Score were each broken up into the same bins described in the previous section (2.3). Cells were plotted on each combination of Driver Age bins and Credit Score bins, and the same was done with the Public Score bins. 
+
+There were multiple observations for each of those cells, so dot sizes were made to increase based on the number of observations on that cell. Therefore, larger dot sizes indicate more observations for that cell compared to a cell with a smaller dot size. Each of these plots in Figure 8 provides a better idea of the distribution of policyholders in each Driver Age bin with each bin of Credit Score and Public Score. The policies in some Driver Age bins have a somewhat uniform distribution of Credit Score and Public Score bins. However, it is apparent that the policyholders within the 31 to 40 age group have lower Credit Scores in general, and the opposite is true of policyholders over the age of 60.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{1\textwidth}
+\centering
+\includegraphics[width=5.3in,height=2in]{Images/Driver_Age_vs_Credit_Score_Bins_Plot.png}
+\caption{Driver Age Bins vs. Credit Score Bins.}
+  \label{fig:sub1}
+\end{subfigure}%
+
+\begin{subfigure}{1\textwidth}
+\centering
+\includegraphics[width=5.3in,height=2in]{Images/Driver_Age_vs_Public_Score_Bins_Plot.png}
+\caption{Driver Age Bins vs. Public Score Bins.}
+  \label{fig:sub2}
+\end{subfigure}
+\caption{Correlation Plots. Larger dots indicate more observations for that cell.}
+\end{figure}
+
+
+A similar plot, seen in Figure 9, was created to show the correlation between different Prior Bodily Injury Limits and Credit Score and Public Score. In this case, it is obvious that most of the policies had Prior Bodily Injury Limits of 100/300, so there is not a clear correlation there. However, it does seem apparent that there are fewer policies within the Prior Bodily Injury Limits of 100/300 that have a low score compared to those that have a medium or high scores. The policies that did have clearer correlations were the ones with Prior Bodily Injury Limits of 15/30, and 500/500. For those with Prior Limits of 15/30, many more policies have low scores than had high scores, and the opposite is true for policies with Prior Limits of 500/500. The correlation with Credit Score and Public Score for policies with other Prior Bodily Injury Limits were not as clear, but there may be a slight correlation for some.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{1\textwidth}
+\centering
+\includegraphics[width=5.3in,height=2in]{Images/Prior_BI_Limit_vs_Credit_Score_Bins_Plot.png}
+\caption{Prior Bodily Injury Limit Bins vs. Credit Score Bins.}
+ \label{fig:sub1}
+\end{subfigure}%
+
+\begin{subfigure}{1\textwidth}
+\centering
+\includegraphics[width=5.3in,height=2in]{Images/Prior_BI_Limit_vs_Public_Score_Bins_Plot.png}
+\caption{Prior Bodily Injury Limit Bins vs. Public Score Bins.}
+ \label{fig:sub1}
+\end{subfigure}
+\caption{Correlation Plot. Larger dots indicate more observations for that cell.}
+\end{figure}
+\FloatBarrier
+
+\section{ Methods}\label{sec:Methods}
+
+We separated the refined COLL and PD data sets into random samples sets of 80\% and 20\% training and testing, respectively.  We used the training sets to build models and the testing sets to check the model predictions. We repeated this step 5 times to get 5 pairs of training and testing sets. To test predictive power, we use \textbf{cross-validation}. Cross-validation is necessary to ensure that results are consistent throughout our data, so that predictions made from the 20\% testing set are as accurate as possible. 
+\subsection{ The Limitations of Linear Models}\label{sec:LM-Limitations}
+
+To understand the structure of Generalized Linear Models (GLMs), it is helpful to review the classic linear models (LMs) since GLM is, as the name suggests, a generalized form of LM. The purpose of both LMs and GLMs are to express the relationship between a response variable, Y, with a number of predictor variables, X. A typical linear model has the form 
+%
+\begin{align}
+ \vec{Y} &= \vec{\beta}\vec{X}+\vec{\epsilon}.
+\end{align}
+%
+where $\vec{Y}$ is a vector of observations, and $\vec{X}$ is the matrix of predictor variables or covariates if the predictor variables are continuous. The vector of regression coefficients, $\vec{\beta}$, tells the change in predictor variable when there is a unit change in the response variable, holding all the other variables constant.  In the vector of error terms, $\vec{\epsilon}$, each error is a Normally distributed random variable with mean 0 and variance $\sigma^2$. Some important assumptions for linear models are:
+%
+\begin{enumerate}
+\item
+The linear relationship
+\item
+All observations are independent and each comes from a Normal distribution 	
+\item
+The mean response is a linear combination of the covariates, and each component of the random variable is assumed to have a common variance.
+\end{enumerate}
+%
+Sometimes it is difficult to assume Normality and a constant variance for response variables. Although data transformation is helpful to meet the conditions, such as $\text{ln}(Y)$, there is no reasonable conclusion for why such a transformation should be performed. Within our data, models for severity would need non-negative values for the response variable since a negative incurred loss would be nonsensical. Additionally, there are dependent variables in our data that do not contain continuous distributions. Considering that the predicted values should also follow their respective distribution, the Normality assumption of linear models would be violated. Moreover, some of the predictor variables are not linear in nature. For example, the relationship between a driver's age and other personal indicators are likely to be nonlinear. Therefore, linear models are inappropriate for our particular data set.
+
+\subsection{ Genalized Linear Models}\label{sec:GLM}
+
+Then what is the difference between GLM and LM? Generalized Linear Models consists of a wider range of models including the before mentioned Linear Model as a special case; this results in several similarities between the basic components of both models. GLMs disregard the need for several of the assumptions that the specialized Linear Model case obtained, in particular the assumption of Normality. Instead, the response variable is assumed to be a member of 
+\textbf{exponential family} of distributions, and the variance is permitted to vary with the mean of distribution. In summary, GLMs have the following characteristics:
+
+\begin{enumerate}
+\item
+\textbf{Each component of $\vec{Y}$ is independent and is from one of the exponential family of distributions }
+\item
+\textbf{A linear predictor based on the predictor variables $X_{i1},\cdots,X_{i,n-1}$ is utilized, denoted by $X_i'\mathbf{\beta}$: } 
+\begin{align}
+ \mathbf{X_i'\beta}=\beta_0+\beta_1X_{i1}+\cdots+\beta_{n-1}X_{i,n-1}. \
+\end{align}	
+
+\item
+\textbf{The link function $g$ relates the linear predictor to the mean reponse:}
+\begin{align}
+ E[\vec{Y}]=g^{-1}(\mathbf{X_i'\beta)}.\
+\end{align}
+
+\end{enumerate}
+
+\subsection{ The Link Function}\label{sec:Link-Fxn}
+
+As previously mentioned, Linear models use data transformations in order to meet the assumptions of Normality and constant variance with the response variable. In Generalized Linear Models, the link function specifies a nonlinear transformation of the predicted values in order to ensure that the distribution is within the \textbf{exponential family}, which includes a wide variety of distributions that share the same density form such the Normal, Poisson, Gamma, Binomial, and Exponential distributions. The link function must be both differentiable and monotonic (either strictly increasing or decreasing). Common link functions are:
+%
+\begin{align*}
+\text{Identity link}: &   g(x)=x, & g^{-1}(x)&=x\\
+\text{Log link}: &  g(x)= \log(x), & g^{-1}(x)&=e^{x}\\
+\text{Logit link}: &  g(x)= \log \frac{x}{(1-x)}, & g^{-1}(x)&=\frac{e^{x}}{1+e^{x}}\\
+\text{Reciprocal link}: &   g(x)=1/x, &g^{-1}(x)&=1/x
+\end{align*}
+The log link function is commonly used for Poisson, Gamma, and Normal distributions.  The Logit link function is used in the case of Binomial or other Multinomial distributions. For our data, the claim frequency, which provides the information of how many accidents occurred during the given period of 2010 to 2012, was modeled by the Poisson distribution. However since the majority of the claim frequencies within both data sets obtains claims that are either 0 or 1, the Binomial distribution was also considered as a potential model. Although there are a few observations with more than one claim in a year, there are so few of them that they could be treated as having a single claim in order to use the Binomial distribution for a model. The Binomial distribution can provide the estimation of probability that a claim will occur. The Gamma distribution was also considered to model claim severity since the incurred losses are non-negative. However, since we were unable to create models using the Binomial distribution or the Gamma distribution, these are steps to be included when moving forward in the research of this topic.
+
+\subsection{ Exponential Family}\label{sec:Exp-Fam}
+
+The exponential family of distributions is a two-parameter family of functions defined by 
+%
+\begin{align}
+f_i(y_i, \theta_i, \phi)=\exp\{\frac{y_i\theta_i-b(\theta_i)}{a_i(\phi)}+c(y_i, \phi)\}.\
+\end{align}
+%
+where $\theta_i$ is a parameter related to the mean, and $\phi$ is a scale parameter related to the variance.  $a(\phi)$, $b(\theta)$, and $c(y,\phi)$ are functions specified in advance with the following restrictions  \cite{cas2007}:
+\begin{enumerate}
+\item
+$a(\theta)$ is positive and continuous;
+\item
+$b(\theta)$ is twice differentiable with positive second derivative; and
+\item
+$c(y,\theta)$ is independent of the parameter $\theta$.
+\end{enumerate}
+%
+$f$ is a probability density function so it always integrates to 1 over its domain. Therefore, different choices for $a(\theta)$, $b(\theta)$, and $c(y,\theta)$ define a different class of distributions and a different solution to the GLM problem. Some familiar distributions that belong to the exponential family are:
+%
+\begin{table}[!htb]
+\centering
+\begin{tabular}{|l | l | l | l |}
+\hline
+Distribution & $a(\phi)$ & $b(\theta)$ & $c(y,\phi)$ \\[0.5ex] \hline
+Normal & $\phi/\omega$ & $\theta^2/2$ & $-(y^2\omega/\phi+\text{ln}(2\pi\phi/\omega))/2$ \\
+Poisson & $\phi/\omega$ & $e^\phi$ & $\text{-ln}(y!)$ \\ 
+Gamma & $\phi/\omega$ & $\text{-ln}(-\theta)$ & $(\omega/\phi)\text{ln}(y\omega/\phi)\text{-ln}(y)-\text{ln}(\Gamma(\omega/\phi)$\\ 
+Binomial (m trials) & $\phi/\omega$ & $\text{m.ln}(1+e^\phi)$ & $\text{ln}{n\choose k}$ \\
+Inverse Gaussian & $\phi/\omega$ & $-\sqrt{-2\phi}$ & $-[\text{ln}(2\pi\phi y^3/\omega)+\omega/(\phi y)]/2$ \\
+%heading
+\hline
+\end{tabular}
+\label{table:nonlin}
+\end{table}
+\FloatBarrier
+%
+It is obvious that the standard choice for $a(\theta)$ is $\phi/\omega$. Where $\omega$ is a constant prior weight that is specified in advance. For our data, it is common that the prior weight is equal to 1 when modeling frequency. 
+
+\subsection{ Offset Vector}\label{sec:Offset}
+
+There are instances within GLM modeling where a particular variable's effect is known and needs to be accounted for with additional information within the model. Within our data, the Earned Exposure variable is of this type.
+
+A claim count depends on both the frequency of the claim and the amount of exposure for each policyholder. Intuitively it can be defined as follows:
+%
+$$ \text{Count} = \text{Frequency} \times \text{Exposure}$$
+%
+For example, a person producing a claim with an exposure of one is not the same as a person producing a claim with an exposure of one-half; they are to be treated differently. Knowing that Earned Exposure can affect the claim count, it is essential to take this aspect into account in a special way. 
+As a result, Earned Exposure should not, and will not, be used as a regular predictor variable. Instead, the information it provides can be incorporated in two separate ways: 
+
+\begin{enumerate}
+\item{An offset vector which would contain the log of exposure for each observation}
+
+\item{Weights to account for the exposure of each observation.}
+\end{enumerate}
+%
+Within our particular modeling, we use the natural log of Earned Exposure as the offset vector for counts within our GLM models \cite{cas2007}.
+
+\subsection{ Building and Comparing Models}\label{sec:Model-Build-Compare}
+
+Predictive power was the primary condition used to select our model; it is defined as follows:
+
+\textbf{Predictive Power}: When tested on data in the testing set,  the model predicts reliably.
+
+We used the \texttt{glm()} function in R to model frequency with the Poisson distribution. This function provides an estimation of the coefficients for each predictor variable, including all levels in each category, standard error of estimation, and the indication of the significance of the corresponding predictor variable.
+
+The $R^2$ statistic in linear models, which refers to the fraction of variance explained by a model, can be used to compare different linear models. $R^2$ takes values from 0 to 1, where $R^2$ of 0 denotes no explanation of the variation by the model, and $R^2$ of 1 signifies that the entire variation is explained by the model. In GLM, deviance measures how much the fitted values differ from the observations in a model \cite{cas2007}. The scaled deviance, which is a generalized form of sum of squared errors with adjusted shape of the distribution, is defined as follows:
+%
+\begin{equation} \label{eq6}
+D^*=\sum_{i=1}^n\frac{\omega_i}{\phi}\int_{\mu_i}^{Y_i} \frac{Y_i-\zeta}{V(\zeta)}\,d\zeta.
+\end{equation}
+%
+Where $\mu_i$ is the fitted value for an observation $Y_i$, $Var(x)$ is a specified variance function in GLM, $\phi$ is the scale parameter, and $\omega$ is the prior weights. The change in the scaled deviance between two nested models can be considered to be a sample from $\chi^2$ distribution with degrees of freedom to be the change in the number of actual predictors between two models. More specifically:
+%
+\begin{equation} \label{eq7}
+D_1^*-D_2^* \sim  \chi_{df_1-df_2}^2
+\end{equation}
+%
+This simple $\chi^2$ test tells the significance of the extra variables in the bigger model. In other words, degree of freedom is the ``expense", where we use this amount of ``expense" to improve the model by the reduction of deviance.
+
+Generalized linear models can also consider the interaction between two or more factors. Interactions occur when the effect of one factor varies according to the level of another factor. More interactions are not beneficial due to the parsimony theory. In order to determine whether the interaction under investigation is sensible and should be retained in the final model, we should carefully consider the significance of the predictors. However, due to limited hardware resources, we were not able to run interaction models during this project. Instead, we note interaction models as one of the tasks that should be incorporated within the next steps analysis.
+
+\subsubsection{ GLM using Poisson and Log Link Function}\label{sec:GAM-Poi}
+
+We generated 4 types of GLM Poisson models for each data set, with about 850,000 training records for the COLL data set and about 955,000 training records for the PD data set:
+%
+\begin{enumerate}
+\item{\textbf{Full Model:} Uses all 19 variables including Public Score and Credit Score. This model has 75 coefficients estimated in the COLL data set and 77 coefficients estimated in the PD data set.}
+\item{\textbf{Credit Score Model:} Uses all 19 variables except Public Score. This model has 65 coefficients estimated in the COLL data set and 67 coefficients estimated in the PD data set.}
+\item{\textbf{Public Score Model:} Uses all 19 variables except Credit Score. This model has 64 coefficients estimated in the COLL data set and 66 coefficients estimated in the PD data set.}
+\item{\textbf{No Score Model:} Neither Public Score nor Credit Score is used in the model, but still included other 17 variables. This model has 54 coefficients estimated in the COLL data set and 56 coefficients estimated in the PD data set.}
+\end{enumerate}
+%
+Then we used the \texttt{anova} function with the chi-square test to compare nested models. As described previously,  the change in deviance and number of predictors were used to check the significance of Public Score and Credit Score. 
+
+\subsection{ Generalized Additive Models}\label{sec:GAM}
+ 
+The most common approach to deal with continuous rating variables is to group the values into intervals, like what we did for Credit Score and Public Score \cite{E2010}. However, two policies with only slightly different values for the rating variable may result in substantially different results. As an alternative method, Generalized Additive Models (GAM) can be used in assessing Public Score. GAM can be seen as a further generalization of GLMs. Specifically, in addition to the aspects within a GLM, GAM also goes further to include nonlinear forms of the predictors. We used the \texttt{gam} package in R to model Number of Claims with a continuous and valid Public Score. Inside the package, we use the \texttt{gam()} function with the same set up as we did in GLM, except now incorporating a smoothing spline function \texttt{s()} for Public Score with default degree of freedom 4.  As a result, the major difference between the two models is the use of non-parametric functions for Public Score. Knowing that the underlying effect on claim frequencies varies continuously, it would make sense to have a model that shows this effect.
+
+\section{ Results}\label{sec:Results}
+
+\subsection{ Public Score within the Full Model}\label{sec:Poi-PS-Full-Model}
+
+First, we wanted to see whether Public Score is significant in models that already have Credit Score. The two nested models are:
+%
+\begin{enumerate}
+\item{\textbf{Full Model}}
+\item{\textbf{Credit Score Model}}
+\end{enumerate}
+%
+Table 2 shows the results of the anova test produced from the five training subsets for each of the COLL and PD data sets, respectively. The P-value indicates how far right tail of the resulting chi-square test statistic, i.e., a smaller P-value represents a stronger predictive power.  As a result, Public Score is relatively significant for a model that already has Credit Score at a 95\% level. However, Public Score is not too significant considering that from both data sets, one set displays a lack of significance for Public Score.
+%
+%POISSON
+\begin{table}[!htb]
+\centering
+\begin{tabular}{| c || c | c | c |}
+    \hline
+  \multicolumn{4}{|c|}{Collision } \\
+  \hline
+  	Random Set \# & Change in Deviance & P-value & Significance\\ \hline
+    1 & 27.88 & 0.0019 & **\\ \hline
+    2 & 19.77 & 0.0315 & *\\ \hline
+    3 & 14.45 & 0.1536 & \\ \hline
+    4 & 24.02 & 0.0076 & **\\ \hline
+    5 & 19.76 & 0.0316 & *\\ \hline
+    \hline
+  \multicolumn{4}{|c|}{PD} \\
+  \hline
+  	Random Set \# & Change in Deviance & P-value & Significance\\ \hline
+    1 & 23.32 & 0.0096 & **\\ \hline
+    2 & 22.95 & 0.0109 & *\\ \hline
+    3 & 22.99 & 0.0108 & *\\ \hline
+    4 & 25.56 & 0.0044 & **\\ \hline
+    5 & 20.03 & 0.0289 & *\\ \hline       
+  \end{tabular}
+\caption{After adding Public Score to the Credit Score Models, a change in deviance reflects relatively significance levels. The significance rating is  in terms of the P-value: $< 0.001$: `***', $0.001<p<.01$: `**', $.01<p<.05$: `*', $.05<p<.1$: `.' , $p>.1$:` ' .}
+\label{fig:test}
+\end{table}
+
+
+All of the models from both COLL and PD display a reduction in deviance, and the majority of the sets display significance within their P-value. This suggests that incorporating Public Score is still beneficial even when Credit Score is already involved. However, although this table shows the significance of Public Score within the model, it should be noted that the improvement of the model is slight; this concludes that Public Score doesn't produce a remarkable enhancement of the model.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[scale=.47]{Images/pd_full_coefficients.pdf}
+\caption{Property Damage Data Set}  
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[scale=.47]{Images/coll_full_coefficients.pdf}
+\caption{Collision Data Set}  
+  \label{fig:sub2}
+\end{subfigure}
+\caption{Coefficients from the Full Model.}
+\label{fig:test}
+\end{figure}
+%
+After running a full model, which contains every predictor, corresponding coefficients for each variable were provided, including each factor of the non-continuous variables. Each coefficient provides the degree of impact each variable possesses.
+
+Since the model uses the log link function, we can interpret the exponentiated coefficients (i.e., $e^{\beta_{j}}$ ) as multiplicative effects on the expected number of claims \cite{Fox2010}.  This results in the following meaning: within a Public Score or Credit Score bin, holding other bins constant, increasing a variable by one unit multiplies the estimated expected number of claims by $e^{\beta_i}$.
+
+The coefficients from each of the five random samples were examined in order to determine the minimum, maximum, and mean for each variable. Figure 10 displays the coefficient range for each bin of the credit and public scores composed from the PD and COLL data sets.
+
+The coefficient sign, whether it is positive or negative, does not provide any significant information within the plot, nor does the zero line. However, the placement of each coefficient relative to the other is what becomes particularly informative. Coefficients with bin ranges to the left hand side of the plot are lower and as a result produce a lower effect on the number of claims. As coefficients go from left to right the effect that the score bin range has on the number of claims becomes higher.
+
+Another informative understanding from the coefficients plots is to notice the fluctuation among bins of Credit Score and Public Score. Credit Score bins clearly have larger fluctuations than Public Score bins; this may lead to a initial conclusion that Public Score is less predictive than Credit Score.
+
+The PD and COLL data sets vaguely produce a similar shape, but there are clearly enough differences to discuss both separately. These differences are similar to the differences seen in the preliminary frequency plot in Figure 4. In both cases the PD set experiences more erratic fluctuations with Public Score whereas the COLL data set has a more steady trend.
+
+For the COLL data set in Figure 4, we could see a downward trend indicating that frequency generally decreased with an increase in Public Score. In this COLL coefficient plot, we interpret the same concept. The coefficients for Public Score steadily move from left to right as the score bin range decreases, where the left side represents relatively lower coefficients then the right. Knowing the interpretation of the coefficients, we can determine that variables with lower coefficients (left) have a lower change in the number of claims. As a result, the Public Score bins within this plot indicate that as the score bin range decreases, the effect on the number of claims becomes higher. This result coincides with the interpretation of Figure 4 to some degree.
+
+The same trend can be seen in the PD data set with the only clear distinction, as before in Figure 4, being about the 700 score: scores above 700 tend to be placed more to the left while scores below 700 are more to the right; this indicates that scores smaller than the 700 range have a greater effect on the number of claims.
+\FloatBarrier
+
+\subsection{ GLM Predictions for Public Score within the Full Model}\label{sec:glm-full}
+
+Using the full GLM model, we also computed predictions of the frequency of claims for each Public Score and each Credit Score bin using \texttt{predict.glm()} function in R. We then divided the predicted values by the corresponding Earned Exposure from the testing sets to get the actual annual frequency prediction. Those predictions, with maximum and minimum from the 5 testing sets, are plotted along with the previously plotted frequencies from our training set, seen in Figure 11. The green line with the grey bands, indicating maximum and minimum values, represent the actual frequency found within the data set, whereas the red line represents our predictions with the minimum and maximum represented by the dotted blue lines.
+
+Slightly higher frequencies were predicted for each Public Score and each Credit Score bin, but almost all of the predicted frequencies mirror the given frequencies fairly well. It is visibly clear from the two plots with Public Score that, from one Public Score bin to the next, the predicted frequencies rise and fall similarly to the actual frequencies from the training set. However, in the Property Damage data set, the predicted frequencies line up very closely to the actual frequencies for the ``634-681'', ``682-711'', and ``758-779'' bins. For the Collision data set, the predicted frequencies seem to average the actual frequencies for the first four Public Score bins.
+
+In the two plots with Credit Score, from one Credit Score bin to the next, the predicted frequencies go from being very far off from the actual frequencies to being very close. For both data sets, the ``No Score'' bin has the greatest difference between its predicted frequencies and actual frequencies, and the difference is also large in the ``No History'' bin for the Property Damage data set. This may be because there is no clear way to group policies without a Credit Score along with other policies with a Credit Score, and for some reason it has the lowest actual frequency of any bin. All other predictions, however, are within 0.5\% of the actual frequencies.
+%
+\begin{figure}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3.5in,height=2.25in]{Images/pd_full_model_prediction.pdf}
+\caption{\scriptsize Property Damage Data Set using Public Score Bins}  
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3.5in,height=2.25in]{Images/coll_full_prediction.pdf}
+\caption{\scriptsize Collision Data Set using Public Score Bins}  
+  \label{fig:sub2}
+\end{subfigure}%
+
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3.5in,height=2.25in]{Images/pd_fullmodel_pred_inCreditBins.pdf}
+\caption{\scriptsize Property Damage Data Set using Credit Score Bins}  
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3.5in,height=2.25in]{Images/coll_fullmodel_pred_inCreditBins.pdf}
+\caption{\scriptsize Collision Data Set using Credit Score Bins}  
+  \label{fig:sub2}
+\end{subfigure}
+\caption{Predictions of the Annual Frequency using the Full Model. The plot depicts the frequency obtained from the data set (in green) with the corresponding  frequency range from the data set (in grey), as well as the frequency prediction (in red) with the corresponding frequency prediction range (in blue).}
+\label{fig:test}
+\end{figure}
+\FloatBarrier
+
+\subsection{ Public Score within a Model That Excludes Credit Score}\label{sec:glm-model-no-credit}
+
+We also want to know whether Public Score is significant in models without Credit Score. The two nested models used are:
+%
+\begin{enumerate}
+\item{\textbf{Public Score Model}}
+\item{\textbf{No Score Model}}
+\end{enumerate}
+%
+Using the same technique as before, five random sample training sets were used to perform anova chi-squared tests. The results can be referenced in Table 3. This time, there were slightly larger changes in deviance, and the P-values showed that Public Score is a suitable predictive variable with over 99\% confidence for all of the sets.
+
+This is indicative that Public Score can be a significant predictor variable for claim frequency without Credit Score as another predictor variable. It also indicates that Public Score is greatly significant when it is the only model involved; this leads to the conclusion that including any score is a better option than including none at all to determine the number of claims. However, by comparing the anova results from the previous anova table (Table 2), we see that Public Score is less significant when Credit Score is included.
+
+We implemented the same procedure for no score models and models with only Credit Score; the resulting P-values are even smaller than the models with only Public Score. However, given that P-values from both models are in significant ranges, it is safe to say that Credit Score is more predictive than Public Score.
+%
+%POISSON TABLE
+\begin{table}[!htb]
+\centering
+\begin{tabular}{| c || c | c | c |}
+    \hline
+  \multicolumn{4}{|c|}{Collision} \\
+  \hline
+  	Random Set \# & Change in Deviance & P-value & Significance \\ \hline
+    1 & 59.46 & 4.59e-09 & ***\\ \hline
+    2 & 48.54 & 4.95e-07 & ***\\ \hline
+    3 & 42.46 & 6.22e-06 & ***\\ \hline
+    4 & 58.22 & 7.86e-09 & ***\\ \hline
+    5 & 47.89 & 6.51e-07 & ***\\ \hline 
+  \hline
+  \multicolumn{4}{|c|}{PD} \\
+  \hline
+  	Random Set \# & Change in Deviance & P-value & Significance\\ \hline
+    1 & 45.83 & 1.54e-06 & ***\\ \hline
+    2 & 45.32 & 1.91e-06 & ***\\ \hline
+    3 & 44.78 & 2.38e-06 & ***\\ \hline
+    4 & 48.61 & 4.81e-07 & ***\\ \hline
+    5 & 37.88 & 3.99e-05 & ***\\ \hline   
+  \end{tabular}
+\caption{After adding Public Score to the models with no scores, a change in deviance reflects relatively significance levels. The significance rating is  in terms of the P-value: $< 0.001$: `***'}
+\label{fig:test}
+\end{table}
+\FloatBarrier
+
+\subsection{ GLM Predictions for Public Score within a Model That Excludes Credit Score}\label{sec:glm-predict-model-no-credit}
+
+As before, we computed predictions of the frequency of claims for each Public Score and each Credit Score bin, but this time using the partial GLM model either (1) without Credit Score or (2) without Public Score, compared the partial GLM model without both Credit and Public Score. Figure 13 shows the predictions using the same line color meaning as the previous predictions.
+
+Similarly, slightly higher frequencies were also predicted for each Public Score and each Credit Score bin for these models, but the predicted frequencies generally tended to mirror the given frequencies, or even line up with them, fairly well as before. Figures 13a and 13b, which show the frequency of claims by Public Score bin, are created from a GLM without Credit Score, but they have the same exact predicted frequencies as the full model. This may be due to the fact that the actual frequencies in these plots are the frequencies of claims for each Public Score bin and both the full model and the partial model rely on Public Score for predictions.
+
+In the two plots with Credit Score, each predicted frequency for each Credit Score bin seems to average the actual frequencies from the training set, especially in the Collision data set. Again, for both data sets, the ``No Score'' bin has the greatest difference between its predicted frequencies and actual frequencies, and the difference is also large in the ``No History'' bin for the Property Damage data set. As previously mentioned, this may be because there is no clear way to group policies without a Credit Score along with other policies with a Credit Score, and for some reason it has the lowest actual frequency of any bin.
+%
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3in,height=2.6in]{Images/pd_Public_consistency.pdf}
+\caption{Property Damage Data Set}  
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3in,height=2.6in]{Images/COLL_consistency_no_title.pdf}
+\caption{Collision Data Set}  
+  \label{fig:sub2}
+\end{subfigure}
+\caption{Public Score Consistency: 2010-2012.}
+\label{fig:test}
+\end{figure}
+%
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3.5in,height=2.25in]{Images/pd_only_public_model_prediction.pdf}
+\caption{\scriptsize Property Damage Data Set using Public Score Bins}  
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3.5in,height=2.25in]{Images/coll_only_public_model_prediction.pdf}
+\caption{\scriptsize Collision Data Set using Public Score Bins}  
+  \label{fig:sub2}
+\end{subfigure}%
+
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3.5in,height=2.25in]{Images/pd_OnlyPublicModel_pred_inCreditBins.pdf}
+\caption{\scriptsize Property Damage Data Set using Credit Score Bins}  
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3.5in,height=2.25in]{Images/coll_OnlyPublicModel_pred_inCreditBins.pdf}
+\caption{\scriptsize Collision Data Set using Credit Score Bins}  
+  \label{fig:sub2}
+\end{subfigure}
+\caption{Predictions of the Annual Frequency using A Model Only Containing Public Score. The plot depicts the frequency obtained from the data set (in green) with the corresponding  frequency range from the data set (in grey), as well as the frequency prediction (in red) with the corresponding frequency prediction range (in blue).}
+\label{fig:test}
+\end{figure}
+
+A separate prediction plot was produced to check the Public Score consistency throughout the three years provided within the data set: 2010-2012. Each of the three predictions seen in Figure 12, represented by a different colored line, was plotted in comparison to the frequency plot discussed in section 2.3. For both PD and COLL, all three years have a prediction line that almost mirror each other. As a result of the consistency between all three years, Public Score is predictive in the model only containing Public Score regardless of the year.
+\FloatBarrier
+
+\subsection{ AIC and Test Deviance}\label{sec:aic-deviance}
+
+Every explanatory variable added to a model improves fit \cite{pg2013}. However, adding unwarranted variables decrease the precision of parameter estimates.  GLM uses the same principle of balancing bias and variance as linear models. The bias-variance tradeoff can be explained by the Akaike's Information Criterion (AIC):
+%
+\[AIC=-2l+2p,\]
+%
+where $l$ is the log-likelihood of given model, and 2p is the variance term. Therefore, the criteria value is high if the variance term is high, and criteria is low with a lower variance term. The model with lower AIC is preferred. For the Poisson GLM, we define the test deviance to measure the departure of predictions to the actual observations from the testing sets:
+%
+\[\text{Test Deviance}=\sum_{i=1}^n (y_i*ln(\frac {\mu_i}{\omega_i})-\frac {\mu_i}{\omega_i}).\]
+%
+Table 4 summarizes the average AIC and test deviance from 5 training subsets.
+
+\begin{table}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\multicolumn{3}{|c|}{Average AIC}                    \\ \hline
+\multicolumn{1}{|l|}{Score/Data Set} & PD & COLL \\ \hline
+Public Score                         & 64308 & 84484 \\ \hline
+Credit Score                         & 64203 & 84396 \\ \hline
+\end{tabular}
+%\caption{AIC} 
+%\label{fig:sub1}
+\end{subfigure}%
+%}
+\\[.06in]
+\begin{subfigure}{.5\textwidth}
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\multicolumn{3}{|c|}{Average Test Deviance}               \\ \hline
+\multicolumn{1}{|l|}{Score/Data Set} & PD        & COLL      \\ \hline
+Public Score                         & -10826.56 & -14168.72 \\ \hline
+Credit Score                         & -10837.68 & -14173.99 \\ \hline
+\end{tabular}
+%  \caption{Test Deviance}
+%  \label{fig:sub2}
+\end{subfigure}
+\caption{Summary of Average AIC and Test Deviance.}
+\label{fig:test}
+\end{table}
+%
+As a result of the Credit Score models from both the COLL and PD data sets having a lower AIC and test deviance, we can conclude that Credit Score is more predictive than Public Score in models with only one type of score. 
+\FloatBarrier
+
+\subsection{ GAM Models}\label{sec:gam-predict}
+
+Using GAMs with smoothing splines, we computed new predictions of claim frequency. We used the continuous Public Score variable with the flagged score of 999 (representing a lack of information) to model our data. In the prediction, we then binned the result based on the Public Score bins, as seen in Figure 14. Since our models use smoothing spline functions, we see that our predictions do not fluctuate as much as the predictions from our GLM. However, our plot comparing GAM predictions to the actual claim frequencies shows that GAM is able to predict very closely to the actual frequencies. The point where the prediction lies farthest from the actual frequency is for the “No Score” bin in the Property Damage data set. This is expected, though, because this bin has a very large confidence interval, and it was previously displayed that our GLM predictions also predicted this point much higher than the actual frequency. Overall, these GAM predictions are all very close to the predictions from GLM, and most of them are within 0.5\% or less of the actual frequencies.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3in,height=2.6in]{Images/pd_gamPublicModel.pdf}
+\caption{Property Damage Data Set}  
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=3in,height=2.6in]{Images/coll_gamPublicModel_pred.pdf}
+\caption{Collision Data Set}  
+  \label{fig:sub2}
+\end{subfigure}
+\caption{GAM Predictions}
+\label{fig:test}
+\end{figure}
+\FloatBarrier
+
+\section{ Conclusions}\label{sec:Conclusions}
+
+The results in Section 4 provide a good indication of the predictive power of the Public Score variable for claim frequency. In the full model, including all variables, chi-squared tests show that Public Score is a significant predictor variable for claim frequency with at least 95\% confidence in all subsets of the Collision data set except for one, and in all five subsets of the Property Damage data set. Almost all claim frequency predictions made from the full model using our 20\% testing subset were within 1\% of the actual frequencies in the training set, most of which were within 0.5\% or less of the actual frequencies.
+
+In the model that excludes the Credit Score variable, chi-squared tests show that Public Score is a significant predictor variable for claim frequency with at least 99\% confidence in all subsets of both the Collision data set and the Property Damage data set. The fact that Public Score is a significantly more predictive variable for claim frequency in this model indicates that it is a suitable replacement for when Credit Score is not used as a predictor variable. Almost all claim frequency predictions were also within 1\% of the actual frequencies in the training set for this model.
+
+These results prove that including any score, Credit or Public, is a better option than including neither at all to determine claim frequency. Although Public Score is less significant as a predictor variable when Credit Score is included, Public Score is, in fact, a very strong predictor for claim frequency when Credit Score is not included. This is at least some proof that Public Score is a suitable replacement for Credit Score as a predictive variable for claim frequency. However, there are still results that we were not able to find that should be taken into consideration for future use of Public Score in determining premium rates; the methods to achieve these results are described in detail within the following section.
+
+\section{ Next Steps}\label{sec:Next Steps}
+
+\subsection{ Banding Variables}\label{sec:banding}
+
+Auto Insurance will always need to deal with the issue of continuous variables and how to properly handle them. Within the data set, the particular continuous variables in question include age, density, driver points, as well as both Credit Score and Public Score. There has been a common tradition of ``banding'' continuous variables into subgroups where the idea is to ``group the possible values of the variable into intervals, treating values in the same interval as identical'' \cite{E2010}. This method has been known to be generally effective, resulting in it being a common practice. A banding approach was taken within our research with all of the before mentioned variables, however there are still concerns that need to be addressed. There are instances where this method has shown to have flaws; for example, what happens to a policy that has a borderline value within a rating variable? Two close policy values can potentially have completely different premiums due to this interval method \cite{E2010}. A major question that still needs to be answered is whether this banding technique should be used at all? Furthermore, if it is used, in what way would we determine how a variable will be divided into intervals (i.e. how will they be fairly and justly grouped?). We tended to use our own subjective banding intervals for a majority of the variables, with the exception of Credit Score and Public Score in which we based the intervals on Earned Exposure. As a result of our lack of a formal banding technique, our interval divisions need to be worked on further using the following concept: ``The intervals must be large enough to achieve good precision of the estimates, but at the same time have to be small if the effect of the variable varies much'' \cite{E2010}.
+
+\subsection{ Models with Variable Interactions}\label{sec:Interactions}
+
+All of the methods carried out in this research project were focused on finding out how well of a predictor variable Public Score is for determining claim frequency. Although many of the methods implemented throughout the course of our research provided useful results, there were other models that would have also been beneficial that were not performed due to their difficulty. One of the greatest difficulties that arose with other models was a result of our technological resources, or lack there of. In particular, there were methods that our computers were incapable of carrying out, such as large interaction models. However, we were able to run a model with interactions between Public Score and Year to check consistency of Public Score from another method; the summary is the same as what we conclude in Figure 12. As a result we focused more of our attention on making sure that the methods we could perform were done carefully and correctly.
+
+The models and methods that we used were helpful in answering some of the questions regarding Public Score as a predictor variable, but it would be ideal to create more models. In particular, models with different combinations of interactions between predictor variables, which would be used to compare to our GLM models. The interaction models that would have been tested and should still be tested in the future include interactions between all of the variables within driver, vehicle and policy categories. Also, since we also found correlations between other variables, shown in Section 2.4, it might also be useful to create models with interactions between these correlated variables. 
+
+\subsection{ Severity}\label{sec:Severity}
+
+Determining how good of a predictor variable Public Score is in regards to claim severity was another main goal within our research. Unfortunately due to time constraints, we were not able to produce a significant conclusion. Moving forward, similar methods to what was done for the Number of Claims could also be used to find severity. Since information about each of the predictor variables and a few variable correlations are already known, creating new models to predict claim severity would require a relatively minimal amount of extra work.
+
+Generalized Linear Models would again be used for severity. However a Gamma Distribution, instead of a Poisson Distribution, with a log link function would be used to predict claim severity since incurred losses are non-negative. Anova tests using Chi-Square should also be produced in order to compare the models; these tests will give some indication of the significance of Public Score as a predictive variable for claim severity. Severity predictions should also be made to compare to the actual severity for the policies that do have losses incurred in order to test the accuracy of the models.
+
+After these further methods and tests are carried out, not only would the predictability of Public Score for claim frequency be known, but it would also be known for claim severity. The relationship between Public Score and other predictor variables would also be known. Assuming Public Score is a suitable replacement for Credit Score as a predictive variable, the states in which the use of Credit Score for casualty insurance is controversial or illegal could rely on Public Score in order to determine premium rates.
+
+\section{ Acknowledgments}\label{sec:Acknowledgments}
+
+Thank you to Ray Tan, Kim Lin, and Mustafa Rahman for the opportunity to work on this research project for CSAA Insurance Group as well as always being available to answer our questions and provide advice. Also, thank you to the Department of Probability and Statistics at the University of California, Santa Barbara for providing us with incredible academic resources to increase our preparation for our future careers. In particular, thank you Professor Raya Feldman for taking the time to share your technical and professional knowledge and expertise. Most importantly, we'd especially like to provide our appreciation to our project instructor, Professor Mike Ludkovski. Your lessons and guidance each step of the way made this project an irreplaceable learning experience. The knowledge and experience we have gained from all of you throughout this process will carry on with each of us in our futures as actuaries.
+
+%\section*{References}
+\begin{thebibliography}{99}
+
+\bibitem{memo2013} CSAA Memo, 2013.\\[.1in]
+
+\bibitem{cas2007} Duncan Anderson, Sholom Feldblum, Claudine Modlin, Doris Schirmacher, Ernesto Schirmacher, and Neeza Thandi, 2007. \emph{A Practitioner's Guide to Generalized Linear Models}, Casualty Actuary Society, Arlington, Virginia.\\[.1in] 
+
+\bibitem{E2010} Esbjorn Ohlsson, Bjorn Johansson, 2010. \emph{Non-Life Insurance Pricing with Generalized Linear Models}, Springer Heidelberg Dordrecht London New York.\\[.1in]
+
+\bibitem{Fox2010}John Fox, 2008. \emph{Applied Regression Analysis and Generalized Linear Models}, SAGE Publication Inc., Thousand Oaks, CA. \\[.1in]
+
+\bibitem{pg2013} Piet de Jong, Gillian Z. Heller, 2013. \emph{Generalized Linear Models for Insurance Data},
+Cambridge University Press, Cambridge CB2 8 RU, UK.\\[.1in]
+
+\bibitem{R2011} R Development Core Team, 2011, \emph{R: A Language and Environment for Statistical Computing}, R Foundation for Statistical Computing. Available from http: // www.r-project.org/.
+
+\end{thebibliography}
+\end{document}
