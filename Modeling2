@@ -1,0 +1,246 @@
+load("pdtrain1.RData")
+load("pdtest1.RData")
+load("pdtrain2.RData")
+load("pdtest2.RData")
+load("pdtrain3.RData")
+load("pdtest3.RData")
+load("pdtrain4.RData")
+load("pdtest4.RData")
+load("pdtrain5.RData")
+load("pdtest5.RData")
+
+
+###GAM###
+###############################################
+######GAM##################
+###flag out 999 score####
+###set1###
+pdtrain1.nopublic<-0
+##pdtrain1$Public_Score[pdtrain1$Public_Score==999]
+pdtrain1.forgam<-cbind(pdtrain1, pdtrain1.nopublic)
+pdtrain1.forgam$pdtrain1.nopublic=as.numeric(pdtrain1.forgam$Public_Score==999)
+pdtrain1.forgam$Public_Score[pdtrain1.forgam$Public_Score==999]=0
+pdtrain1.forgam$pdtrain1.nopublic<-factor(pdtrain1.forgam$pdtrain1.nopublic)
+
+pdtrain1.nopublic<-0
+##pdtest1$Public_Score[pdtest1$Public_Score==999]
+pdtest1.forgam<-cbind(pdtest1, pdtrain1.nopublic)
+pdtest1.forgam$pdtrain1.nopublic=as.numeric(pdtest1.forgam$Public_Score==999)
+pdtest1.forgam$Public_Score[pdtest1.forgam$Public_Score==999]=0
+pdtest1.forgam$pdtrain1.nopublic<-factor(pdtest1.forgam$pdtrain1.nopublic)
+
+
+##set2##
+pdtrain2.nopublic<-0
+##pdtrain2$Public_Score[pdtrain2$Public_Score==999]
+pdtrain2.forgam<-cbind(pdtrain2, pdtrain2.nopublic)
+pdtrain2.forgam$pdtrain2.nopublic=as.numeric(pdtrain2.forgam$Public_Score==999)
+pdtrain2.forgam$Public_Score[pdtrain2.forgam$Public_Score==999]=0
+pdtrain2.forgam$pdtrain2.nopublic<-factor(pdtrain2.forgam$pdtrain2.nopublic)
+
+pdtrain2.nopublic<-0
+##pdtest2$Public_Score[pdtest2$Public_Score==999]
+pdtest2.forgam<-cbind(pdtest2, pdtrain2.nopublic)
+pdtest2.forgam$pdtrain2.nopublic=as.numeric(pdtest2.forgam$Public_Score==999)
+pdtest2.forgam$Public_Score[pdtest2.forgam$Public_Score==999]=0
+pdtest2.forgam$pdtrain2.nopublic<-factor(pdtest2.forgam$pdtrain2.nopublic)
+
+###set3####
+pdtrain3.nopublic<-0
+##pdtrain3$Public_Score[pdtrain3$Public_Score==999]
+pdtrain3.forgam<-cbind(pdtrain3, pdtrain3.nopublic)
+pdtrain3.forgam$pdtrain3.nopublic=as.numeric(pdtrain3.forgam$Public_Score==999)
+pdtrain3.forgam$Public_Score[pdtrain3.forgam$Public_Score==999]=0
+pdtrain3.forgam$pdtrain3.nopublic<-factor(pdtrain3.forgam$pdtrain3.nopublic)
+
+pdtrain3.nopublic<-0
+##pdtest3$Public_Score[pdtest3$Public_Score==999]
+pdtest3.forgam<-cbind(pdtest3, pdtrain3.nopublic)
+pdtest3.forgam$pdtrain3.nopublic=as.numeric(pdtest3.forgam$Public_Score==999)
+pdtest3.forgam$Public_Score[pdtest3.forgam$Public_Score==999]=0
+pdtest3.forgam$pdtrain3.nopublic<-factor(pdtest3.forgam$pdtrain3.nopublic)
+
+###set 4####
+pdtrain4.nopublic<-0
+##pdtrain4$Public_Score[pdtrain4$Public_Score==999]
+pdtrain4.forgam<-cbind(pdtrain4, pdtrain4.nopublic)
+pdtrain4.forgam$pdtrain4.nopublic=as.numeric(pdtrain4.forgam$Public_Score==999)
+pdtrain4.forgam$Public_Score[pdtrain4.forgam$Public_Score==999]=0
+pdtrain4.forgam$pdtrain4.nopublic<-factor(pdtrain4.forgam$pdtrain4.nopublic)
+
+pdtrain4.nopublic<-0
+##pdtest4$Public_Score[pdtest4$Public_Score==999]
+pdtest4.forgam<-cbind(pdtest4, pdtrain4.nopublic)
+pdtest4.forgam$pdtrain4.nopublic=as.numeric(pdtest4.forgam$Public_Score==999)
+pdtest4.forgam$Public_Score[pdtest4.forgam$Public_Score==999]=0
+pdtest4.forgam$pdtrain4.nopublic<-factor(pdtest4.forgam$pdtrain4.nopublic)
+
+###set 5####
+pdtrain5.nopublic<-0
+##pdtrain5$Public_Score[pdtrain5$Public_Score==999]
+pdtrain5.forgam<-cbind(pdtrain5, pdtrain5.nopublic)
+pdtrain5.forgam$pdtrain5.nopublic=as.numeric(pdtrain5.forgam$Public_Score==999)
+pdtrain5.forgam$Public_Score[pdtrain5.forgam$Public_Score==999]=0
+pdtrain5.forgam$pdtrain5.nopublic<-factor(pdtrain5.forgam$pdtrain5.nopublic)
+
+pdtrain5.nopublic<-0
+##pdtest5$Public_Score[pdtest5$Public_Score==999]
+pdtest5.forgam<-cbind(pdtest5, pdtrain5.nopublic)
+pdtest5.forgam$pdtrain5.nopublic=as.numeric(pdtest5.forgam$Public_Score==999)
+pdtest5.forgam$Public_Score[pdtest5.forgam$Public_Score==999]=0
+pdtest5.forgam$pdtrain5.nopublic<-factor(pdtest5.forgam$pdtrain5.nopublic)
+
+
+
+#spline function
+library(gam)
+gam.only.public.pdtrain1<-gam(Num_Claims~s(Public_Score,4)+pdtrain1.nopublic+Prior_BILimit+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+PD_Limit+Car_Density+Vehicle_Age+Veh_Type_Symbol+offset(log(Earned_Exposure)), family=poisson(link=log), data=pdtrain1.forgam)
+
+gam.only.public.pdtrain2<-gam(Num_Claims~s(Public_Score,4)+pdtrain2.nopublic+Prior_BILimit+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+PD_Limit+Car_Density+Vehicle_Age+Veh_Type_Symbol+offset(log(Earned_Exposure)), family=poisson(link=log), data=pdtrain2.forgam)
+
+gam.only.public.pdtrain3<-gam(Num_Claims~s(Public_Score,4)+pdtrain3.nopublic+Prior_BILimit+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+PD_Limit+Car_Density+Vehicle_Age+Veh_Type_Symbol+offset(log(Earned_Exposure)), family=poisson(link=log), data=pdtrain3.forgam)
+
+gam.only.public.pdtrain4<-gam(Num_Claims~s(Public_Score,4)+pdtrain4.nopublic+Prior_BILimit+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+PD_Limit+Car_Density+Vehicle_Age+Veh_Type_Symbol+offset(log(Earned_Exposure)), family=poisson(link=log), data=pdtrain4.forgam)
+
+gam.only.public.pdtrain5<-gam(Num_Claims~s(Public_Score,4)+pdtrain5.nopublic+Prior_BILimit+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+PD_Limit+Car_Density+Vehicle_Age+Veh_Type_Symbol+offset(log(Earned_Exposure)), family=poisson(link=log), data=pdtrain5.forgam)
+
+pred.gam.pdtest1<-predict.gam(gam.only.public.pdtrain1, newdata=pdtest1.forgam, type="response")
+pred.gam.freq.pdtest1<-pred.gam.pdtest1/pdtest1.forgam$Earned_Exposure
+test.deviance.gam.pdtest1<-sum(pdtest1.forgam$Num_Claims*log(pred.gam.freq.pdtest1)-pred.gam.freq.pdtest1)
+test.deviance.gam.pdtest1
+
+pred.gam.pdtest2<-predict.gam(gam.only.public.pdtrain2, newdata=pdtest2.forgam, type="response")
+pred.gam.freq.pdtest2<-pred.gam.pdtest2/pdtest2.forgam$Earned_Exposure
+test.deviance.gam.pdtest2<-sum(pdtest2.forgam$Num_Claims*log(pred.gam.freq.pdtest2)-pred.gam.freq.pdtest2)
+test.deviance.gam.pdtest2
+
+pred.gam.pdtest3<-predict.gam(gam.only.public.pdtrain3, newdata=pdtest3.forgam, type="response")
+pred.gam.freq.pdtest3<-pred.gam.pdtest3/pdtest3.forgam$Earned_Exposure
+test.deviance.gam.pdtest3<-sum(pdtest3.forgam$Num_Claims*log(pred.gam.freq.pdtest3)-pred.gam.freq.pdtest3)
+test.deviance.gam.pdtest3
+
+pred.gam.pdtest4<-predict.gam(gam.only.public.pdtrain4, newdata=pdtest4.forgam, type="response")
+pred.gam.freq.pdtest4<-pred.gam.pdtest4/pdtest4.forgam$Earned_Exposure
+test.deviance.gam.pdtest4<-sum(pdtest4.forgam$Num_Claims*log(pred.gam.freq.pdtest4)-pred.gam.freq.pdtest4)
+test.deviance.gam.pdtest4
+
+pred.gam.pdtest5<-predict.gam(gam.only.public.pdtrain5, newdata=pdtest5.forgam, type="response")
+pred.gam.freq.pdtest5<-pred.gam.pdtest5/pdtest5.forgam$Earned_Exposure
+test.deviance.gam.pdtest5<-sum(pdtest5.forgam$Num_Claims*log(pred.gam.freq.pdtest5)-pred.gam.freq.pdtest5)
+test.deviance.gam.pdtest5
+
+
+
+##set1gam###
+newpdtest1.gam<-cbind(pdtest1.forgam,pred.gam.freq.pdtest1)
+newpdtest1.gam.bin1<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=0 & newpdtest1.gam$Public_Score<=633])
+newpdtest1.gam.bin2<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=634 & newpdtest1.gam$Public_Score<=681])
+newpdtest1.gam.bin3<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=682 & newpdtest1.gam$Public_Score<=711])
+newpdtest1.gam.bin4<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=712 & newpdtest1.gam$Public_Score<=737])
+newpdtest1.gam.bin5<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=738 & newpdtest1.gam$Public_Score<=757])
+newpdtest1.gam.bin6<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=758 & newpdtest1.gam$Public_Score<=779])
+newpdtest1.gam.bin7<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=780 & newpdtest1.gam$Public_Score<=802])
+newpdtest1.gam.bin8<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=803 & newpdtest1.gam$Public_Score<=826])
+newpdtest1.gam.bin9<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=827 & newpdtest1.gam$Public_Score<=852])
+newpdtest1.gam.bin10<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$Public_Score>=853 & newpdtest1.gam$Public_Score<=997])
+newpdtest1.gam.bin11<-mean(newpdtest1.gam$pred.gam.freq.pdtest1[newpdtest1.gam$pdtrain1.nopublic=="1"])
+
+
+
+newpdtest3.gam<-cbind(pdtest3.forgam,pred.gam.freq.pdtest3)
+newpdtest3.gam.bin1<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=0 & newpdtest3.gam$Public_Score<=633])
+newpdtest3.gam.bin2<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=634 & newpdtest3.gam$Public_Score<=681])
+newpdtest3.gam.bin3<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=682 & newpdtest3.gam$Public_Score<=711])
+newpdtest3.gam.bin4<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=712 & newpdtest3.gam$Public_Score<=737])
+newpdtest3.gam.bin5<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=738 & newpdtest3.gam$Public_Score<=757])
+newpdtest3.gam.bin6<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=758 & newpdtest3.gam$Public_Score<=779])
+newpdtest3.gam.bin7<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=780 & newpdtest3.gam$Public_Score<=802])
+newpdtest3.gam.bin8<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=803 & newpdtest3.gam$Public_Score<=826])
+newpdtest3.gam.bin9<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=827 & newpdtest3.gam$Public_Score<=852])
+newpdtest3.gam.bin10<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$Public_Score>=853 & newpdtest3.gam$Public_Score<=997])
+newpdtest3.gam.bin11<-mean(newpdtest3.gam$pred.gam.freq.pdtest3[newpdtest3.gam$pdtrain3.nopublic=="1"])
+
+newpdtest4.gam<-cbind(pdtest4.forgam,pred.gam.freq.pdtest4)
+newpdtest4.gam.bin1<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=0 & newpdtest4.gam$Public_Score<=633])
+newpdtest4.gam.bin2<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=634 & newpdtest4.gam$Public_Score<=681])
+newpdtest4.gam.bin3<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=682 & newpdtest4.gam$Public_Score<=711])
+newpdtest4.gam.bin4<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=712 & newpdtest4.gam$Public_Score<=737])
+newpdtest4.gam.bin5<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=738 & newpdtest4.gam$Public_Score<=757])
+newpdtest4.gam.bin6<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=758 & newpdtest4.gam$Public_Score<=779])
+newpdtest4.gam.bin7<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=780 & newpdtest4.gam$Public_Score<=802])
+newpdtest4.gam.bin8<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=803 & newpdtest4.gam$Public_Score<=826])
+newpdtest4.gam.bin9<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=827 & newpdtest4.gam$Public_Score<=852])
+newpdtest4.gam.bin10<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$Public_Score>=853 & newpdtest4.gam$Public_Score<=997])
+newpdtest4.gam.bin11<-mean(newpdtest4.gam$pred.gam.freq.pdtest4[newpdtest4.gam$pdtrain4.nopublic=="1"])
+
+newpdtest5.gam<-cbind(pdtest5.forgam,pred.gam.freq.pdtest5)
+newpdtest5.gam.bin1<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=0 & newpdtest5.gam$Public_Score<=633])
+newpdtest5.gam.bin2<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=634 & newpdtest5.gam$Public_Score<=681])
+newpdtest5.gam.bin3<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=682 & newpdtest5.gam$Public_Score<=711])
+newpdtest5.gam.bin4<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=712 & newpdtest5.gam$Public_Score<=737])
+newpdtest5.gam.bin5<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=738 & newpdtest5.gam$Public_Score<=757])
+newpdtest5.gam.bin6<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=758 & newpdtest5.gam$Public_Score<=779])
+newpdtest5.gam.bin7<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=780 & newpdtest5.gam$Public_Score<=802])
+newpdtest5.gam.bin8<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=803 & newpdtest5.gam$Public_Score<=826])
+newpdtest5.gam.bin9<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=827 & newpdtest5.gam$Public_Score<=852])
+newpdtest5.gam.bin10<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$Public_Score>=853 & newpdtest5.gam$Public_Score<=997])
+newpdtest5.gam.bin11<-mean(newpdtest5.gam$pred.gam.freq.pdtest5[newpdtest5.gam$pdtrain5.nopublic=="1"])
+
+
+
+mean.newpdtest.bin1<-mean(newpdtest1.gam.bin1,newpdtest3.gam.bin1,newpdtest4.gam.bin1,newpdtest5.gam.bin1)
+mean.newpdtest.bin2<-mean(newpdtest1.gam.bin2,newpdtest3.gam.bin2,newpdtest4.gam.bin2,newpdtest5.gam.bin2)
+mean.newpdtest.bin3<-mean(newpdtest1.gam.bin3,newpdtest3.gam.bin3,newpdtest4.gam.bin3,newpdtest5.gam.bin3)
+mean.newpdtest.bin4<-mean(newpdtest1.gam.bin4,newpdtest3.gam.bin4,newpdtest4.gam.bin4,newpdtest5.gam.bin4)
+mean.newpdtest.bin5<-mean(newpdtest1.gam.bin5,newpdtest3.gam.bin5,newpdtest4.gam.bin5,newpdtest5.gam.bin5)
+mean.newpdtest.bin6<-mean(newpdtest1.gam.bin6,newpdtest3.gam.bin6,newpdtest4.gam.bin6,newpdtest5.gam.bin6)
+mean.newpdtest.bin7<-mean(newpdtest1.gam.bin7,newpdtest3.gam.bin7,newpdtest4.gam.bin7,newpdtest5.gam.bin7)
+mean.newpdtest.bin8<-mean(newpdtest1.gam.bin8,newpdtest3.gam.bin8,newpdtest4.gam.bin8,newpdtest5.gam.bin8)
+mean.newpdtest.bin9<-mean(newpdtest1.gam.bin9,newpdtest3.gam.bin9,newpdtest4.gam.bin9,newpdtest5.gam.bin9)
+mean.newpdtest.bin10<-mean(newpdtest1.gam.bin10,newpdtest3.gam.bin10,newpdtest4.gam.bin10,newpdtest5.gam.bin10)
+mean.newpdtest.bin11<-mean(newpdtest1.gam.bin11,newpdtest3.gam.bin11,newpdtest4.gam.bin11,newpdtest5.gam.bin11)
+
+
+min.newpdtest.bin1<-min(newpdtest1.gam.bin1,newpdtest3.gam.bin1,newpdtest4.gam.bin1,newpdtest5.gam.bin1)
+min.newpdtest.bin2<-min(newpdtest1.gam.bin2,newpdtest3.gam.bin2,newpdtest4.gam.bin2,newpdtest5.gam.bin2)
+min.newpdtest.bin3<-min(newpdtest1.gam.bin3,newpdtest3.gam.bin3,newpdtest4.gam.bin3,newpdtest5.gam.bin3)
+min.newpdtest.bin4<-min(newpdtest1.gam.bin4,newpdtest3.gam.bin4,newpdtest4.gam.bin4,newpdtest5.gam.bin4)
+min.newpdtest.bin5<-min(newpdtest1.gam.bin5,newpdtest3.gam.bin5,newpdtest4.gam.bin5,newpdtest5.gam.bin5)
+min.newpdtest.bin6<-min(newpdtest1.gam.bin6,newpdtest3.gam.bin6,newpdtest4.gam.bin6,newpdtest5.gam.bin6)
+min.newpdtest.bin7<-min(newpdtest1.gam.bin7,newpdtest3.gam.bin7,newpdtest4.gam.bin7,newpdtest5.gam.bin7)
+min.newpdtest.bin8<-min(newpdtest1.gam.bin8,newpdtest3.gam.bin8,newpdtest4.gam.bin8,newpdtest5.gam.bin8)
+min.newpdtest.bin9<-min(newpdtest1.gam.bin9,newpdtest3.gam.bin9,newpdtest4.gam.bin9,newpdtest5.gam.bin9)
+min.newpdtest.bin10<-min(newpdtest1.gam.bin10,newpdtest3.gam.bin10,newpdtest4.gam.bin10,newpdtest5.gam.bin10)
+min.newpdtest.bin11<-min(newpdtest1.gam.bin11,newpdtest3.gam.bin11,newpdtest4.gam.bin11,newpdtest5.gam.bin11)
+
+max.newpdtest.bin1<-max(newpdtest1.gam.bin1,newpdtest3.gam.bin1,newpdtest4.gam.bin1,newpdtest5.gam.bin1)
+max.newpdtest.bin2<-max(newpdtest1.gam.bin2,newpdtest3.gam.bin2,newpdtest4.gam.bin2,newpdtest5.gam.bin2)
+max.newpdtest.bin3<-max(newpdtest1.gam.bin3,newpdtest3.gam.bin3,newpdtest4.gam.bin3,newpdtest5.gam.bin3)
+max.newpdtest.bin4<-max(newpdtest1.gam.bin4,newpdtest3.gam.bin4,newpdtest4.gam.bin4,newpdtest5.gam.bin4)
+max.newpdtest.bin5<-max(newpdtest1.gam.bin5,newpdtest3.gam.bin5,newpdtest4.gam.bin5,newpdtest5.gam.bin5)
+max.newpdtest.bin6<-max(newpdtest1.gam.bin6,newpdtest3.gam.bin6,newpdtest4.gam.bin6,newpdtest5.gam.bin6)
+max.newpdtest.bin7<-max(newpdtest1.gam.bin7,newpdtest3.gam.bin7,newpdtest4.gam.bin7,newpdtest5.gam.bin7)
+max.newpdtest.bin8<-max(newpdtest1.gam.bin8,newpdtest3.gam.bin8,newpdtest4.gam.bin8,newpdtest5.gam.bin8)
+max.newpdtest.bin9<-max(newpdtest1.gam.bin9,newpdtest3.gam.bin9,newpdtest4.gam.bin9,newpdtest5.gam.bin9)
+max.newpdtest.bin10<-max(newpdtest1.gam.bin10,newpdtest3.gam.bin10,newpdtest4.gam.bin10,newpdtest5.gam.bin10)
+max.newpdtest.bin11<-max(newpdtest1.gam.bin11,newpdtest3.gam.bin11,newpdtest4.gam.bin11,newpdtest5.gam.bin11)
+
+pd.mean.list<-c(mean.newpdtest.bin11,mean.newpdtest.bin1,mean.newpdtest.bin2,mean.newpdtest.bin3,mean.newpdtest.bin4,mean.newpdtest.bin5,mean.newpdtest.bin6,mean.newpdtest.bin7,mean.newpdtest.bin8,mean.newpdtest.bin9,mean.newpdtest.bin10)
+pd.min.list<-c(min.newpdtest.bin11,min.newpdtest.bin1,min.newpdtest.bin2,min.newpdtest.bin3,min.newpdtest.bin4,min.newpdtest.bin5,min.newpdtest.bin6,min.newpdtest.bin7,min.newpdtest.bin8,min.newpdtest.bin9,min.newpdtest.bin10)
+pd.max.list<-c(max.newpdtest.bin11,max.newpdtest.bin1,max.newpdtest.bin2,max.newpdtest.bin3,max.newpdtest.bin4,max.newpdtest.bin5,max.newpdtest.bin6,max.newpdtest.bin7,max.newpdtest.bin8,max.newpdtest.bin9,max.newpdtest.bin10)
+lines(pd.mean.list, main="PD GAM Public Score Model in Public Score Bins", xlab="", ylab="Frequency" ,type="o", xaxt="n", cex=2, col=2, lwd=2)
+lines(pd.min.list-0.001, col="blue", lty=2)
+lines(pd.max.list, col="blue", lty=2)
+axis(1, at=c(1,2,3,4,5,6,7,8,9,10,11), labels=c("no score","0-633","634-681","682-711","712-737","738-757","758-779","780-802","803-826","827-852","853-997"),las=2)
+
+
+library(plotmo)
+plotmo(gam.only.public.pdtrain1, main=NULL, degree1='Public_Score', degree2=FALSE, grid.levels=list(Prior="50/100", Veh_Type="SMALL"))
+ 
+  ptest <- colltest1.forgam[1:50,]
+ptest[1:50,] <- ptest[2,]
+score_seq <- seq(500,990,len=50)
+  ptest$Public_Score <- score_seq
+plot(score_seq, pred.gam.colltest1/colltest1.forgam$Earned[2],type="l", ylab='Freq', xlab='Public Score', ylim=c(0.02,0.05))  # this is a straight line
+lines(score_seq, predict(gam.2, new=ptest,type="response")/colltest1$Earned[2],col="blue")  # this is a spline curve
+lines(score_seq, predict(gam.3, new=ptest,type="response")/colltest1$Earned[2],col="red")  # this is a spline curve
