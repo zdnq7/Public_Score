@@ -1,0 +1,648 @@
+
+##########probabilities for set 1###############
+
+load("colltrain1.RData")
+set1<-colltrain1
+
+# 10 Buckets
+
+set1$Public_Score[set1$Public_Score<=638]="0-638"
+set1$Public_Score[set1$Public_Score>=639 & set1$Public_Score<=685]="639-685"
+set1$Public_Score[set1$Public_Score>=686 & set1$Public_Score<=715]="686-715"
+set1$Public_Score[set1$Public_Score>=716 & set1$Public_Score<=740]="716-740"
+set1$Public_Score[set1$Public_Score>=741 & set1$Public_Score<=760]="741-760"
+set1$Public_Score[set1$Public_Score>=761 & set1$Public_Score<=782]="761-782"
+set1$Public_Score[set1$Public_Score>=783 & set1$Public_Score<=805]="783-805"
+set1$Public_Score[set1$Public_Score>=806 & set1$Public_Score<=829]="806-829"
+set1$Public_Score[set1$Public_Score>=830 & set1$Public_Score<=856]="830-856"
+set1$Public_Score[set1$Public_Score>=857 & set1$Public_Score<=997]="857-997"
+
+set1$Credit_Score[set1$Credit_Score<=620]="0-620"
+set1$Credit_Score[set1$Credit_Score>=621 & set1$Credit_Score<=666]="621-666"
+set1$Credit_Score[set1$Credit_Score>=667 & set1$Credit_Score<=697]="667-697"
+set1$Credit_Score[set1$Credit_Score>=698 & set1$Credit_Score<=720]="698-720"
+set1$Credit_Score[set1$Credit_Score>=721 & set1$Credit_Score<=740]="721-740"
+set1$Credit_Score[set1$Credit_Score>=741 & set1$Credit_Score<=761]="741-761"
+set1$Credit_Score[set1$Credit_Score>=762 & set1$Credit_Score<=786]="762-786"
+set1$Credit_Score[set1$Credit_Score>=787 & set1$Credit_Score<=821]="787-821"
+set1$Credit_Score[set1$Credit_Score>=822 & set1$Credit_Score<=869]="822-869"
+set1$Credit_Score[set1$Credit_Score>=870 & set1$Credit_Score<=997]="870-997"
+
+##plot of public vs. probability of accident###
+Public_bin1.1 <- set1$Earned_Exposure[set1$Public_Score<=638]
+Public_bin1.2 <- set1$Earned_Exposure[set1$Public_Score>=639 & set1$Public_Score<=685]
+Public_bin1.3 <- set1$Earned_Exposure[set1$Public_Score>=686 & set1$Public_Score<=715]
+Public_bin1.4 <- set1$Earned_Exposure[set1$Public_Score>=716 & set1$Public_Score<=740]
+Public_bin1.5 <- set1$Earned_Exposure[set1$Public_Score>=741 & set1$Public_Score<=760]
+Public_bin1.6 <- set1$Earned_Exposure[set1$Public_Score>=761 & set1$Public_Score<=782]
+Public_bin1.7 <- set1$Earned_Exposure[set1$Public_Score>=783 & set1$Public_Score<=805]
+Public_bin1.8 <- set1$Earned_Exposure[set1$Public_Score>=806 & set1$Public_Score<=829]
+Public_bin1.9 <- set1$Earned_Exposure[set1$Public_Score>=830 & set1$Public_Score<=856]
+Public_bin1.10 <- set1$Earned_Exposure[set1$Public_Score>=857 & set1$Public_Score<=997]
+
+Freq_Public_bin1.1<-length(which(set1$Public_Score=="0-638" & set1$Num_Claims>=1))/sum(Public_bin1.1)
+Freq_Public_bin1.2<-length(which(set1$Public_Score=="639-685" & set1$Num_Claims>=1))/sum(Public_bin1.2)
+Freq_Public_bin1.3<-length(which(set1$Public_Score=="686-715" & set1$Num_Claims>=1))/sum(Public_bin1.3)
+Freq_Public_bin1.4<-length(which(set1$Public_Score=="716-740" & set1$Num_Claims>=1))/sum(Public_bin1.4)
+Freq_Public_bin1.5<-length(which(set1$Public_Score=="741-760" & set1$Num_Claims>=1))/sum(Public_bin1.5)
+Freq_Public_bin1.6<-length(which(set1$Public_Score=="761-782" & set1$Num_Claims>=1))/sum(Public_bin1.6)
+Freq_Public_bin1.7<-length(which(set1$Public_Score=="783-805" & set1$Num_Claims>=1))/sum(Public_bin1.7)
+Freq_Public_bin1.8<-length(which(set1$Public_Score=="806-829" & set1$Num_Claims>=1))/sum(Public_bin1.8)
+Freq_Public_bin1.9<-length(which(set1$Public_Score=="830-856" & set1$Num_Claims>=1))/sum(Public_bin1.9)
+Freq_Public_bin1.10<-length(which(set1$Public_Score=="857-997" & set1$Num_Claims>=1))/sum(Public_bin1.10)
+Freq_Public_Score1.998<-NaN
+Freq_Public_Score1.999<-length(which(set1$Public_Score==999 & set1$Num_Claims>=1))/sum(set1$Earned_Exposure[set1$Public_Score==999])
+
+a<-c(Freq_Public_Score1.998,Freq_Public_Score1.999,Freq_Public_bin1.1,Freq_Public_bin1.2,Freq_Public_bin1.3,Freq_Public_bin1.4,Freq_Public_bin1.5,Freq_Public_bin1.6,Freq_Public_bin1.7,Freq_Public_bin1.8,Freq_Public_bin1.9,Freq_Public_bin1.10)
+
+
+##plot of credit vs. probability of accident###
+Credit_bin1.1 <- set1$Earned_Exposure[set1$Credit_Score<=620]
+Credit_bin1.2 <- set1$Earned_Exposure[set1$Credit_Score>=621 & set1$Credit_Score<=666]
+Credit_bin1.3 <- set1$Earned_Exposure[set1$Credit_Score>=667 & set1$Credit_Score<=697]
+Credit_bin1.4 <- set1$Earned_Exposure[set1$Credit_Score>=698 & set1$Credit_Score<=720]
+Credit_bin1.5 <- set1$Earned_Exposure[set1$Credit_Score>=721 & set1$Credit_Score<=740]
+Credit_bin1.6 <- set1$Earned_Exposure[set1$Credit_Score>=741 & set1$Credit_Score<=761]
+Credit_bin1.7 <- set1$Earned_Exposure[set1$Credit_Score>=762 & set1$Credit_Score<=786]
+Credit_bin1.8 <- set1$Earned_Exposure[set1$Credit_Score>=787 & set1$Credit_Score<=821]
+Credit_bin1.9 <- set1$Earned_Exposure[set1$Credit_Score>=822 & set1$Credit_Score<=869]
+Credit_bin1.10 <- set1$Earned_Exposure[set1$Credit_Score>=870 & set1$Credit_Score<=997]
+
+Freq_Credit_bin1.1<-length(which(set1$Credit_Score=="0-620" & set1$Num_Claims>=1))/sum(Credit_bin1.1)
+Freq_Credit_bin1.2<-length(which(set1$Credit_Score=="621-666" & set1$Num_Claims>=1))/sum(Credit_bin1.2)
+Freq_Credit_bin1.3<-length(which(set1$Credit_Score=="667-697" & set1$Num_Claims>=1))/sum(Credit_bin1.3)
+Freq_Credit_bin1.4<-length(which(set1$Credit_Score=="698-720" & set1$Num_Claims>=1))/sum(Credit_bin1.4)
+Freq_Credit_bin1.5<-length(which(set1$Credit_Score=="721-740" & set1$Num_Claims>=1))/sum(Credit_bin1.5)
+Freq_Credit_bin1.6<-length(which(set1$Credit_Score=="741-761" & set1$Num_Claims>=1))/sum(Credit_bin1.6)
+Freq_Credit_bin1.7<-length(which(set1$Credit_Score=="762-786" & set1$Num_Claims>=1))/sum(Credit_bin1.7)
+Freq_Credit_bin1.8<-length(which(set1$Credit_Score=="787-821" & set1$Num_Claims>=1))/sum(Credit_bin1.8)
+Freq_Credit_bin1.9<-length(which(set1$Credit_Score=="822-869" & set1$Num_Claims>=1))/sum(Credit_bin1.9)
+Freq_Credit_bin1.10<-length(which(set1$Credit_Score=="870-997" & set1$Num_Claims>=1))/sum(Credit_bin1.10)
+Freq_Credit_Score1.998<-length(which(set1$Credit_Score==998 & set1$Num_Claims>=1))/sum(set1$Earned_Exposure[set1$Credit_Score==998])
+Freq_Credit_Score1.999<-length(which(set1$Credit_Score==999 & set1$Num_Claims>=1))/sum(set1$Earned_Exposure[set1$Credit_Score==999])
+
+a1<-c(Freq_Credit_Score1.998,Freq_Credit_Score1.999,Freq_Credit_bin1.1,Freq_Credit_bin1.2,Freq_Credit_bin1.3,Freq_Credit_bin1.4,Freq_Credit_bin1.5,Freq_Credit_bin1.6,Freq_Credit_bin1.7,Freq_Credit_bin1.8,Freq_Credit_bin1.9,Freq_Credit_bin1.10)
+
+
+
+##############probabilities for set 2##############
+
+load("colltrain2.RData")
+set2<-colltrain2
+
+# 10 Buckets
+
+set2$Public_Score[set2$Public_Score<=638]="0-638"
+set2$Public_Score[set2$Public_Score>=639 & set2$Public_Score<=685]="639-685"
+set2$Public_Score[set2$Public_Score>=686 & set2$Public_Score<=715]="686-715"
+set2$Public_Score[set2$Public_Score>=716 & set2$Public_Score<=740]="716-740"
+set2$Public_Score[set2$Public_Score>=741 & set2$Public_Score<=760]="741-760"
+set2$Public_Score[set2$Public_Score>=761 & set2$Public_Score<=782]="761-782"
+set2$Public_Score[set2$Public_Score>=783 & set2$Public_Score<=805]="783-805"
+set2$Public_Score[set2$Public_Score>=806 & set2$Public_Score<=829]="806-829"
+set2$Public_Score[set2$Public_Score>=830 & set2$Public_Score<=856]="830-856"
+set2$Public_Score[set2$Public_Score>=857 & set2$Public_Score<=997]="857-997"
+
+set2$Credit_Score[set2$Credit_Score<=620]="0-620"
+set2$Credit_Score[set2$Credit_Score>=621 & set2$Credit_Score<=666]="621-666"
+set2$Credit_Score[set2$Credit_Score>=667 & set2$Credit_Score<=697]="667-697"
+set2$Credit_Score[set2$Credit_Score>=698 & set2$Credit_Score<=720]="698-720"
+set2$Credit_Score[set2$Credit_Score>=721 & set2$Credit_Score<=740]="721-740"
+set2$Credit_Score[set2$Credit_Score>=741 & set2$Credit_Score<=761]="741-761"
+set2$Credit_Score[set2$Credit_Score>=762 & set2$Credit_Score<=786]="762-786"
+set2$Credit_Score[set2$Credit_Score>=787 & set2$Credit_Score<=821]="787-821"
+set2$Credit_Score[set2$Credit_Score>=822 & set2$Credit_Score<=869]="822-869"
+set2$Credit_Score[set2$Credit_Score>=870 & set2$Credit_Score<=997]="870-997"
+
+##plot of public vs. probability of accident###
+Public_bin2.1 <- set2$Earned_Exposure[set2$Public_Score<=638]
+Public_bin2.2 <- set2$Earned_Exposure[set2$Public_Score>=639 & set2$Public_Score<=685]
+Public_bin2.3 <- set2$Earned_Exposure[set2$Public_Score>=686 & set2$Public_Score<=715]
+Public_bin2.4 <- set2$Earned_Exposure[set2$Public_Score>=716 & set2$Public_Score<=740]
+Public_bin2.5 <- set2$Earned_Exposure[set2$Public_Score>=741 & set2$Public_Score<=760]
+Public_bin2.6 <- set2$Earned_Exposure[set2$Public_Score>=761 & set2$Public_Score<=782]
+Public_bin2.7 <- set2$Earned_Exposure[set2$Public_Score>=783 & set2$Public_Score<=805]
+Public_bin2.8 <- set2$Earned_Exposure[set2$Public_Score>=806 & set2$Public_Score<=829]
+Public_bin2.9 <- set2$Earned_Exposure[set2$Public_Score>=830 & set2$Public_Score<=856]
+Public_bin2.10 <- set2$Earned_Exposure[set2$Public_Score>=857 & set2$Public_Score<=997]
+
+Freq_Public_bin2.1<-length(which(set2$Public_Score=="0-638" & set2$Num_Claims>=1))/sum(Public_bin2.1)
+Freq_Public_bin2.2<-length(which(set2$Public_Score=="639-685" & set2$Num_Claims>=1))/sum(Public_bin2.2)
+Freq_Public_bin2.3<-length(which(set2$Public_Score=="686-715" & set2$Num_Claims>=1))/sum(Public_bin2.3)
+Freq_Public_bin2.4<-length(which(set2$Public_Score=="716-740" & set2$Num_Claims>=1))/sum(Public_bin2.4)
+Freq_Public_bin2.5<-length(which(set2$Public_Score=="741-760" & set2$Num_Claims>=1))/sum(Public_bin2.5)
+Freq_Public_bin2.6<-length(which(set2$Public_Score=="761-782" & set2$Num_Claims>=1))/sum(Public_bin2.6)
+Freq_Public_bin2.7<-length(which(set2$Public_Score=="783-805" & set2$Num_Claims>=1))/sum(Public_bin2.7)
+Freq_Public_bin2.8<-length(which(set2$Public_Score=="806-829" & set2$Num_Claims>=1))/sum(Public_bin2.8)
+Freq_Public_bin2.9<-length(which(set2$Public_Score=="830-856" & set2$Num_Claims>=1))/sum(Public_bin2.9)
+Freq_Public_bin2.10<-length(which(set2$Public_Score=="857-997" & set2$Num_Claims>=1))/sum(Public_bin2.10)
+Freq_Public_Score2.998<-NaN
+Freq_Public_Score2.999<-length(which(set2$Public_Score==999 & set2$Num_Claims>=1))/sum(set2$Earned_Exposure[set2$Public_Score==999])
+
+b<-c(Freq_Public_Score2.998,Freq_Public_Score2.999,Freq_Public_bin2.1,Freq_Public_bin2.2,Freq_Public_bin2.3,Freq_Public_bin2.4,Freq_Public_bin2.5,Freq_Public_bin2.6,Freq_Public_bin2.7,Freq_Public_bin2.8,Freq_Public_bin2.9,Freq_Public_bin2.10)
+
+
+##plot of credit vs. probability of accident###
+Credit_bin2.1 <- set2$Earned_Exposure[set2$Credit_Score<=620]
+Credit_bin2.2 <- set2$Earned_Exposure[set2$Credit_Score>=621 & set2$Credit_Score<=666]
+Credit_bin2.3 <- set2$Earned_Exposure[set2$Credit_Score>=667 & set2$Credit_Score<=697]
+Credit_bin2.4 <- set2$Earned_Exposure[set2$Credit_Score>=698 & set2$Credit_Score<=720]
+Credit_bin2.5 <- set2$Earned_Exposure[set2$Credit_Score>=721 & set2$Credit_Score<=740]
+Credit_bin2.6 <- set2$Earned_Exposure[set2$Credit_Score>=741 & set2$Credit_Score<=761]
+Credit_bin2.7 <- set2$Earned_Exposure[set2$Credit_Score>=762 & set2$Credit_Score<=786]
+Credit_bin2.8 <- set2$Earned_Exposure[set2$Credit_Score>=787 & set2$Credit_Score<=821]
+Credit_bin2.9 <- set2$Earned_Exposure[set2$Credit_Score>=822 & set2$Credit_Score<=869]
+Credit_bin2.10 <- set2$Earned_Exposure[set2$Credit_Score>=870 & set2$Credit_Score<=997]
+
+Freq_Credit_bin2.1<-length(which(set2$Credit_Score=="0-620" & set2$Num_Claims>=1))/sum(Credit_bin2.1)
+Freq_Credit_bin2.2<-length(which(set2$Credit_Score=="621-666" & set2$Num_Claims>=1))/sum(Credit_bin2.2)
+Freq_Credit_bin2.3<-length(which(set2$Credit_Score=="667-697" & set2$Num_Claims>=1))/sum(Credit_bin2.3)
+Freq_Credit_bin2.4<-length(which(set2$Credit_Score=="698-720" & set2$Num_Claims>=1))/sum(Credit_bin2.4)
+Freq_Credit_bin2.5<-length(which(set2$Credit_Score=="721-740" & set2$Num_Claims>=1))/sum(Credit_bin2.5)
+Freq_Credit_bin2.6<-length(which(set2$Credit_Score=="741-761" & set2$Num_Claims>=1))/sum(Credit_bin2.6)
+Freq_Credit_bin2.7<-length(which(set2$Credit_Score=="762-786" & set2$Num_Claims>=1))/sum(Credit_bin2.7)
+Freq_Credit_bin2.8<-length(which(set2$Credit_Score=="787-821" & set2$Num_Claims>=1))/sum(Credit_bin2.8)
+Freq_Credit_bin2.9<-length(which(set2$Credit_Score=="822-869" & set2$Num_Claims>=1))/sum(Credit_bin2.9)
+Freq_Credit_bin2.10<-length(which(set2$Credit_Score=="870-997" & set2$Num_Claims>=1))/sum(Credit_bin2.10)
+Freq_Credit_Score2.998<-length(which(set2$Credit_Score==998 & set2$Num_Claims>=1))/sum(set2$Earned_Exposure[set2$Credit_Score==998])
+Freq_Credit_Score2.999<-length(which(set2$Credit_Score==999 & set2$Num_Claims>=1))/sum(set2$Earned_Exposure[set2$Credit_Score==999])
+
+b1<-c(Freq_Credit_Score2.998,Freq_Credit_Score2.999,Freq_Credit_bin2.1,Freq_Credit_bin2.2,Freq_Credit_bin2.3,Freq_Credit_bin2.4,Freq_Credit_bin2.5,Freq_Credit_bin2.6,Freq_Credit_bin2.7,Freq_Credit_bin2.8,Freq_Credit_bin2.9,Freq_Credit_bin2.10)
+
+
+##########probabilities for set 3##############
+
+load("colltrain3.RData")
+set3<-colltrain3
+
+# 10 Buckets
+
+set3$Public_Score[set3$Public_Score<=638]="0-638"
+set3$Public_Score[set3$Public_Score>=639 & set3$Public_Score<=685]="639-685"
+set3$Public_Score[set3$Public_Score>=686 & set3$Public_Score<=715]="686-715"
+set3$Public_Score[set3$Public_Score>=716 & set3$Public_Score<=740]="716-740"
+set3$Public_Score[set3$Public_Score>=741 & set3$Public_Score<=760]="741-760"
+set3$Public_Score[set3$Public_Score>=761 & set3$Public_Score<=782]="761-782"
+set3$Public_Score[set3$Public_Score>=783 & set3$Public_Score<=805]="783-805"
+set3$Public_Score[set3$Public_Score>=806 & set3$Public_Score<=829]="806-829"
+set3$Public_Score[set3$Public_Score>=830 & set3$Public_Score<=856]="830-856"
+set3$Public_Score[set3$Public_Score>=857 & set3$Public_Score<=997]="857-997"
+
+set3$Credit_Score[set3$Credit_Score<=620]="0-620"
+set3$Credit_Score[set3$Credit_Score>=621 & set3$Credit_Score<=666]="621-666"
+set3$Credit_Score[set3$Credit_Score>=667 & set3$Credit_Score<=697]="667-697"
+set3$Credit_Score[set3$Credit_Score>=698 & set3$Credit_Score<=720]="698-720"
+set3$Credit_Score[set3$Credit_Score>=721 & set3$Credit_Score<=740]="721-740"
+set3$Credit_Score[set3$Credit_Score>=741 & set3$Credit_Score<=761]="741-761"
+set3$Credit_Score[set3$Credit_Score>=762 & set3$Credit_Score<=786]="762-786"
+set3$Credit_Score[set3$Credit_Score>=787 & set3$Credit_Score<=821]="787-821"
+set3$Credit_Score[set3$Credit_Score>=822 & set3$Credit_Score<=869]="822-869"
+set3$Credit_Score[set3$Credit_Score>=870 & set3$Credit_Score<=997]="870-997"
+
+##plot of public vs. probability of accident###
+Public_bin3.1 <- set3$Earned_Exposure[set3$Public_Score<=638]
+Public_bin3.2 <- set3$Earned_Exposure[set3$Public_Score>=639 & set3$Public_Score<=685]
+Public_bin3.3 <- set3$Earned_Exposure[set3$Public_Score>=686 & set3$Public_Score<=715]
+Public_bin3.4 <- set3$Earned_Exposure[set3$Public_Score>=716 & set3$Public_Score<=740]
+Public_bin3.5 <- set3$Earned_Exposure[set3$Public_Score>=741 & set3$Public_Score<=760]
+Public_bin3.6 <- set3$Earned_Exposure[set3$Public_Score>=761 & set3$Public_Score<=782]
+Public_bin3.7 <- set3$Earned_Exposure[set3$Public_Score>=783 & set3$Public_Score<=805]
+Public_bin3.8 <- set3$Earned_Exposure[set3$Public_Score>=806 & set3$Public_Score<=829]
+Public_bin3.9 <- set3$Earned_Exposure[set3$Public_Score>=830 & set3$Public_Score<=856]
+Public_bin3.10 <- set3$Earned_Exposure[set3$Public_Score>=857 & set3$Public_Score<=997]
+
+Freq_Public_bin3.1<-length(which(set3$Public_Score=="0-638" & set3$Num_Claims>=1))/sum(Public_bin3.1)
+Freq_Public_bin3.2<-length(which(set3$Public_Score=="639-685" & set3$Num_Claims>=1))/sum(Public_bin3.2)
+Freq_Public_bin3.3<-length(which(set3$Public_Score=="686-715" & set3$Num_Claims>=1))/sum(Public_bin3.3)
+Freq_Public_bin3.4<-length(which(set3$Public_Score=="716-740" & set3$Num_Claims>=1))/sum(Public_bin3.4)
+Freq_Public_bin3.5<-length(which(set3$Public_Score=="741-760" & set3$Num_Claims>=1))/sum(Public_bin3.5)
+Freq_Public_bin3.6<-length(which(set3$Public_Score=="761-782" & set3$Num_Claims>=1))/sum(Public_bin3.6)
+Freq_Public_bin3.7<-length(which(set3$Public_Score=="783-805" & set3$Num_Claims>=1))/sum(Public_bin3.7)
+Freq_Public_bin3.8<-length(which(set3$Public_Score=="806-829" & set3$Num_Claims>=1))/sum(Public_bin3.8)
+Freq_Public_bin3.9<-length(which(set3$Public_Score=="830-856" & set3$Num_Claims>=1))/sum(Public_bin3.9)
+Freq_Public_bin3.10<-length(which(set3$Public_Score=="857-997" & set3$Num_Claims>=1))/sum(Public_bin3.10)
+Freq_Public_Score3.998<-NaN
+Freq_Public_Score3.999<-length(which(set3$Public_Score==999 & set3$Num_Claims>=1))/sum(set3$Earned_Exposure[set3$Public_Score==999])
+
+c<-c(Freq_Public_Score3.998,Freq_Public_Score3.999,Freq_Public_bin3.1,Freq_Public_bin3.2,Freq_Public_bin3.3,Freq_Public_bin3.4,Freq_Public_bin3.5,Freq_Public_bin3.6,Freq_Public_bin3.7,Freq_Public_bin3.8,Freq_Public_bin3.9,Freq_Public_bin3.10)
+
+
+##plot of credit vs. probability of accident###
+Credit_bin3.1 <- set3$Earned_Exposure[set3$Credit_Score<=620]
+Credit_bin3.2 <- set3$Earned_Exposure[set3$Credit_Score>=621 & set3$Credit_Score<=666]
+Credit_bin3.3 <- set3$Earned_Exposure[set3$Credit_Score>=667 & set3$Credit_Score<=697]
+Credit_bin3.4 <- set3$Earned_Exposure[set3$Credit_Score>=698 & set3$Credit_Score<=720]
+Credit_bin3.5 <- set3$Earned_Exposure[set3$Credit_Score>=721 & set3$Credit_Score<=740]
+Credit_bin3.6 <- set3$Earned_Exposure[set3$Credit_Score>=741 & set3$Credit_Score<=761]
+Credit_bin3.7 <- set3$Earned_Exposure[set3$Credit_Score>=762 & set3$Credit_Score<=786]
+Credit_bin3.8 <- set3$Earned_Exposure[set3$Credit_Score>=787 & set3$Credit_Score<=821]
+Credit_bin3.9 <- set3$Earned_Exposure[set3$Credit_Score>=822 & set3$Credit_Score<=869]
+Credit_bin3.10 <- set3$Earned_Exposure[set3$Credit_Score>=870 & set3$Credit_Score<=997]
+
+Freq_Credit_bin3.1<-length(which(set3$Credit_Score=="0-620" & set3$Num_Claims>=1))/sum(Credit_bin3.1)
+Freq_Credit_bin3.2<-length(which(set3$Credit_Score=="621-666" & set3$Num_Claims>=1))/sum(Credit_bin3.2)
+Freq_Credit_bin3.3<-length(which(set3$Credit_Score=="667-697" & set3$Num_Claims>=1))/sum(Credit_bin3.3)
+Freq_Credit_bin3.4<-length(which(set3$Credit_Score=="698-720" & set3$Num_Claims>=1))/sum(Credit_bin3.4)
+Freq_Credit_bin3.5<-length(which(set3$Credit_Score=="721-740" & set3$Num_Claims>=1))/sum(Credit_bin3.5)
+Freq_Credit_bin3.6<-length(which(set3$Credit_Score=="741-761" & set3$Num_Claims>=1))/sum(Credit_bin3.6)
+Freq_Credit_bin3.7<-length(which(set3$Credit_Score=="762-786" & set3$Num_Claims>=1))/sum(Credit_bin3.7)
+Freq_Credit_bin3.8<-length(which(set3$Credit_Score=="787-821" & set3$Num_Claims>=1))/sum(Credit_bin3.8)
+Freq_Credit_bin3.9<-length(which(set3$Credit_Score=="822-869" & set3$Num_Claims>=1))/sum(Credit_bin3.9)
+Freq_Credit_bin3.10<-length(which(set3$Credit_Score=="870-997" & set3$Num_Claims>=1))/sum(Credit_bin3.10)
+Freq_Credit_Score3.998<-length(which(set3$Credit_Score==998 & set3$Num_Claims>=1))/sum(set3$Earned_Exposure[set3$Credit_Score==998])
+Freq_Credit_Score3.999<-length(which(set3$Credit_Score==999 & set3$Num_Claims>=1))/sum(set3$Earned_Exposure[set3$Credit_Score==999])
+
+c1<-c(Freq_Credit_Score3.998,Freq_Credit_Score3.999,Freq_Credit_bin3.1,Freq_Credit_bin3.2,Freq_Credit_bin3.3,Freq_Credit_bin3.4,Freq_Credit_bin3.5,Freq_Credit_bin3.6,Freq_Credit_bin3.7,Freq_Credit_bin3.8,Freq_Credit_bin3.9,Freq_Credit_bin3.10)
+
+
+
+
+#############probabilities for set 4############
+
+load("colltrain4.RData")
+set4<-colltrain4
+
+# 10 Buckets
+
+set4$Public_Score[set4$Public_Score<=638]="0-638"
+set4$Public_Score[set4$Public_Score>=639 & set4$Public_Score<=685]="639-685"
+set4$Public_Score[set4$Public_Score>=686 & set4$Public_Score<=715]="686-715"
+set4$Public_Score[set4$Public_Score>=716 & set4$Public_Score<=740]="716-740"
+set4$Public_Score[set4$Public_Score>=741 & set4$Public_Score<=760]="741-760"
+set4$Public_Score[set4$Public_Score>=761 & set4$Public_Score<=782]="761-782"
+set4$Public_Score[set4$Public_Score>=783 & set4$Public_Score<=805]="783-805"
+set4$Public_Score[set4$Public_Score>=806 & set4$Public_Score<=829]="806-829"
+set4$Public_Score[set4$Public_Score>=830 & set4$Public_Score<=856]="830-856"
+set4$Public_Score[set4$Public_Score>=857 & set4$Public_Score<=997]="857-997"
+
+set4$Credit_Score[set4$Credit_Score<=620]="0-620"
+set4$Credit_Score[set4$Credit_Score>=621 & set4$Credit_Score<=666]="621-666"
+set4$Credit_Score[set4$Credit_Score>=667 & set4$Credit_Score<=697]="667-697"
+set4$Credit_Score[set4$Credit_Score>=698 & set4$Credit_Score<=720]="698-720"
+set4$Credit_Score[set4$Credit_Score>=721 & set4$Credit_Score<=740]="721-740"
+set4$Credit_Score[set4$Credit_Score>=741 & set4$Credit_Score<=761]="741-761"
+set4$Credit_Score[set4$Credit_Score>=762 & set4$Credit_Score<=786]="762-786"
+set4$Credit_Score[set4$Credit_Score>=787 & set4$Credit_Score<=821]="787-821"
+set4$Credit_Score[set4$Credit_Score>=822 & set4$Credit_Score<=869]="822-869"
+set4$Credit_Score[set4$Credit_Score>=870 & set4$Credit_Score<=997]="870-997"
+
+##plot of public vs. probability of accident###
+Public_bin4.1 <- set4$Earned_Exposure[set4$Public_Score<=638]
+Public_bin4.2 <- set4$Earned_Exposure[set4$Public_Score>=639 & set4$Public_Score<=685]
+Public_bin4.3 <- set4$Earned_Exposure[set4$Public_Score>=686 & set4$Public_Score<=715]
+Public_bin4.4 <- set4$Earned_Exposure[set4$Public_Score>=716 & set4$Public_Score<=740]
+Public_bin4.5 <- set4$Earned_Exposure[set4$Public_Score>=741 & set4$Public_Score<=760]
+Public_bin4.6 <- set4$Earned_Exposure[set4$Public_Score>=761 & set4$Public_Score<=782]
+Public_bin4.7 <- set4$Earned_Exposure[set4$Public_Score>=783 & set4$Public_Score<=805]
+Public_bin4.8 <- set4$Earned_Exposure[set4$Public_Score>=806 & set4$Public_Score<=829]
+Public_bin4.9 <- set4$Earned_Exposure[set4$Public_Score>=830 & set4$Public_Score<=856]
+Public_bin4.10 <- set4$Earned_Exposure[set4$Public_Score>=857 & set4$Public_Score<=997]
+
+Freq_Public_bin4.1<-length(which(set4$Public_Score=="0-638" & set4$Num_Claims>=1))/sum(Public_bin4.1)
+Freq_Public_bin4.2<-length(which(set4$Public_Score=="639-685" & set4$Num_Claims>=1))/sum(Public_bin4.2)
+Freq_Public_bin4.3<-length(which(set4$Public_Score=="686-715" & set4$Num_Claims>=1))/sum(Public_bin4.3)
+Freq_Public_bin4.4<-length(which(set4$Public_Score=="716-740" & set4$Num_Claims>=1))/sum(Public_bin4.4)
+Freq_Public_bin4.5<-length(which(set4$Public_Score=="741-760" & set4$Num_Claims>=1))/sum(Public_bin4.5)
+Freq_Public_bin4.6<-length(which(set4$Public_Score=="761-782" & set4$Num_Claims>=1))/sum(Public_bin4.6)
+Freq_Public_bin4.7<-length(which(set4$Public_Score=="783-805" & set4$Num_Claims>=1))/sum(Public_bin4.7)
+Freq_Public_bin4.8<-length(which(set4$Public_Score=="806-829" & set4$Num_Claims>=1))/sum(Public_bin4.8)
+Freq_Public_bin4.9<-length(which(set4$Public_Score=="830-856" & set4$Num_Claims>=1))/sum(Public_bin4.9)
+Freq_Public_bin4.10<-length(which(set4$Public_Score=="857-997" & set4$Num_Claims>=1))/sum(Public_bin4.10)
+Freq_Public_Score4.998<-NaN
+Freq_Public_Score4.999<-length(which(set4$Public_Score==999 & set4$Num_Claims>=1))/sum(set4$Earned_Exposure[set4$Public_Score==999])
+
+d<-c(Freq_Public_Score4.998,Freq_Public_Score4.999,Freq_Public_bin4.1,Freq_Public_bin4.2,Freq_Public_bin4.3,Freq_Public_bin4.4,Freq_Public_bin4.5,Freq_Public_bin4.6,Freq_Public_bin4.7,Freq_Public_bin4.8,Freq_Public_bin4.9,Freq_Public_bin4.10)
+
+
+##plot of credit vs. probability of accident###
+Credit_bin4.1 <- set4$Earned_Exposure[set4$Credit_Score<=620]
+Credit_bin4.2 <- set4$Earned_Exposure[set4$Credit_Score>=621 & set4$Credit_Score<=666]
+Credit_bin4.3 <- set4$Earned_Exposure[set4$Credit_Score>=667 & set4$Credit_Score<=697]
+Credit_bin4.4 <- set4$Earned_Exposure[set4$Credit_Score>=698 & set4$Credit_Score<=720]
+Credit_bin4.5 <- set4$Earned_Exposure[set4$Credit_Score>=721 & set4$Credit_Score<=740]
+Credit_bin4.6 <- set4$Earned_Exposure[set4$Credit_Score>=741 & set4$Credit_Score<=761]
+Credit_bin4.7 <- set4$Earned_Exposure[set4$Credit_Score>=762 & set4$Credit_Score<=786]
+Credit_bin4.8 <- set4$Earned_Exposure[set4$Credit_Score>=787 & set4$Credit_Score<=821]
+Credit_bin4.9 <- set4$Earned_Exposure[set4$Credit_Score>=822 & set4$Credit_Score<=869]
+Credit_bin4.10 <- set4$Earned_Exposure[set4$Credit_Score>=870 & set4$Credit_Score<=997]
+
+Freq_Credit_bin4.1<-length(which(set4$Credit_Score=="0-620" & set4$Num_Claims>=1))/sum(Credit_bin4.1)
+Freq_Credit_bin4.2<-length(which(set4$Credit_Score=="621-666" & set4$Num_Claims>=1))/sum(Credit_bin4.2)
+Freq_Credit_bin4.3<-length(which(set4$Credit_Score=="667-697" & set4$Num_Claims>=1))/sum(Credit_bin4.3)
+Freq_Credit_bin4.4<-length(which(set4$Credit_Score=="698-720" & set4$Num_Claims>=1))/sum(Credit_bin4.4)
+Freq_Credit_bin4.5<-length(which(set4$Credit_Score=="721-740" & set4$Num_Claims>=1))/sum(Credit_bin4.5)
+Freq_Credit_bin4.6<-length(which(set4$Credit_Score=="741-761" & set4$Num_Claims>=1))/sum(Credit_bin4.6)
+Freq_Credit_bin4.7<-length(which(set4$Credit_Score=="762-786" & set4$Num_Claims>=1))/sum(Credit_bin4.7)
+Freq_Credit_bin4.8<-length(which(set4$Credit_Score=="787-821" & set4$Num_Claims>=1))/sum(Credit_bin4.8)
+Freq_Credit_bin4.9<-length(which(set4$Credit_Score=="822-869" & set4$Num_Claims>=1))/sum(Credit_bin4.9)
+Freq_Credit_bin4.10<-length(which(set4$Credit_Score=="870-997" & set4$Num_Claims>=1))/sum(Credit_bin4.10)
+Freq_Credit_Score4.998<-length(which(set4$Credit_Score==998 & set4$Num_Claims>=1))/sum(set4$Earned_Exposure[set4$Credit_Score==998])
+Freq_Credit_Score4.999<-length(which(set4$Credit_Score==999 & set4$Num_Claims>=1))/sum(set4$Earned_Exposure[set4$Credit_Score==999])
+
+d1<-c(Freq_Credit_Score4.998,Freq_Credit_Score4.999,Freq_Credit_bin4.1,Freq_Credit_bin4.2,Freq_Credit_bin4.3,Freq_Credit_bin4.4,Freq_Credit_bin4.5,Freq_Credit_bin4.6,Freq_Credit_bin4.7,Freq_Credit_bin4.8,Freq_Credit_bin4.9,Freq_Credit_bin4.10)
+
+
+
+#############probabilities for set 5##############
+
+load("colltrain5.RData")
+set5<-colltrain5
+
+# 10 Buckets
+
+set5$Public_Score[set5$Public_Score<=638]="0-638"
+set5$Public_Score[set5$Public_Score>=639 & set5$Public_Score<=685]="639-685"
+set5$Public_Score[set5$Public_Score>=686 & set5$Public_Score<=715]="686-715"
+set5$Public_Score[set5$Public_Score>=716 & set5$Public_Score<=740]="716-740"
+set5$Public_Score[set5$Public_Score>=741 & set5$Public_Score<=760]="741-760"
+set5$Public_Score[set5$Public_Score>=761 & set5$Public_Score<=782]="761-782"
+set5$Public_Score[set5$Public_Score>=783 & set5$Public_Score<=805]="783-805"
+set5$Public_Score[set5$Public_Score>=806 & set5$Public_Score<=829]="806-829"
+set5$Public_Score[set5$Public_Score>=830 & set5$Public_Score<=856]="830-856"
+set5$Public_Score[set5$Public_Score>=857 & set5$Public_Score<=997]="857-997"
+
+set5$Credit_Score[set5$Credit_Score<=620]="0-620"
+set5$Credit_Score[set5$Credit_Score>=621 & set5$Credit_Score<=666]="621-666"
+set5$Credit_Score[set5$Credit_Score>=667 & set5$Credit_Score<=697]="667-697"
+set5$Credit_Score[set5$Credit_Score>=698 & set5$Credit_Score<=720]="698-720"
+set5$Credit_Score[set5$Credit_Score>=721 & set5$Credit_Score<=740]="721-740"
+set5$Credit_Score[set5$Credit_Score>=741 & set5$Credit_Score<=761]="741-761"
+set5$Credit_Score[set5$Credit_Score>=762 & set5$Credit_Score<=786]="762-786"
+set5$Credit_Score[set5$Credit_Score>=787 & set5$Credit_Score<=821]="787-821"
+set5$Credit_Score[set5$Credit_Score>=822 & set5$Credit_Score<=869]="822-869"
+set5$Credit_Score[set5$Credit_Score>=870 & set5$Credit_Score<=997]="870-997"
+
+##plot of public vs. probability of accident###
+Public_bin5.1 <- set5$Earned_Exposure[set5$Public_Score<=638]
+Public_bin5.2 <- set5$Earned_Exposure[set5$Public_Score>=639 & set5$Public_Score<=685]
+Public_bin5.3 <- set5$Earned_Exposure[set5$Public_Score>=686 & set5$Public_Score<=715]
+Public_bin5.4 <- set5$Earned_Exposure[set5$Public_Score>=716 & set5$Public_Score<=740]
+Public_bin5.5 <- set5$Earned_Exposure[set5$Public_Score>=741 & set5$Public_Score<=760]
+Public_bin5.6 <- set5$Earned_Exposure[set5$Public_Score>=761 & set5$Public_Score<=782]
+Public_bin5.7 <- set5$Earned_Exposure[set5$Public_Score>=783 & set5$Public_Score<=805]
+Public_bin5.8 <- set5$Earned_Exposure[set5$Public_Score>=806 & set5$Public_Score<=829]
+Public_bin5.9 <- set5$Earned_Exposure[set5$Public_Score>=830 & set5$Public_Score<=856]
+Public_bin5.10 <- set5$Earned_Exposure[set5$Public_Score>=857 & set5$Public_Score<=997]
+
+Freq_Public_bin5.1<-length(which(set5$Public_Score=="0-638" & set5$Num_Claims>=1))/sum(Public_bin5.1)
+Freq_Public_bin5.2<-length(which(set5$Public_Score=="639-685" & set5$Num_Claims>=1))/sum(Public_bin5.2)
+Freq_Public_bin5.3<-length(which(set5$Public_Score=="686-715" & set5$Num_Claims>=1))/sum(Public_bin5.3)
+Freq_Public_bin5.4<-length(which(set5$Public_Score=="716-740" & set5$Num_Claims>=1))/sum(Public_bin5.4)
+Freq_Public_bin5.5<-length(which(set5$Public_Score=="741-760" & set5$Num_Claims>=1))/sum(Public_bin5.5)
+Freq_Public_bin5.6<-length(which(set5$Public_Score=="761-782" & set5$Num_Claims>=1))/sum(Public_bin5.6)
+Freq_Public_bin5.7<-length(which(set5$Public_Score=="783-805" & set5$Num_Claims>=1))/sum(Public_bin5.7)
+Freq_Public_bin5.8<-length(which(set5$Public_Score=="806-829" & set5$Num_Claims>=1))/sum(Public_bin5.8)
+Freq_Public_bin5.9<-length(which(set5$Public_Score=="830-856" & set5$Num_Claims>=1))/sum(Public_bin5.9)
+Freq_Public_bin5.10<-length(which(set5$Public_Score=="857-997" & set5$Num_Claims>=1))/sum(Public_bin5.10)
+Freq_Public_Score5.998<-NaN
+Freq_Public_Score5.999<-length(which(set5$Public_Score==999 & set5$Num_Claims>=1))/sum(set5$Earned_Exposure[set5$Public_Score==999])
+
+e<-c(Freq_Public_Score5.998,Freq_Public_Score5.999,Freq_Public_bin5.1,Freq_Public_bin5.2,Freq_Public_bin5.3,Freq_Public_bin5.4,Freq_Public_bin5.5,Freq_Public_bin5.6,Freq_Public_bin5.7,Freq_Public_bin5.8,Freq_Public_bin5.9,Freq_Public_bin5.10)
+
+
+##plot of credit vs. probability of accident###
+Credit_bin5.1 <- set5$Earned_Exposure[set5$Credit_Score<=620]
+Credit_bin5.2 <- set5$Earned_Exposure[set5$Credit_Score>=621 & set5$Credit_Score<=666]
+Credit_bin5.3 <- set5$Earned_Exposure[set5$Credit_Score>=667 & set5$Credit_Score<=697]
+Credit_bin5.4 <- set5$Earned_Exposure[set5$Credit_Score>=698 & set5$Credit_Score<=720]
+Credit_bin5.5 <- set5$Earned_Exposure[set5$Credit_Score>=721 & set5$Credit_Score<=740]
+Credit_bin5.6 <- set5$Earned_Exposure[set5$Credit_Score>=741 & set5$Credit_Score<=761]
+Credit_bin5.7 <- set5$Earned_Exposure[set5$Credit_Score>=762 & set5$Credit_Score<=786]
+Credit_bin5.8 <- set5$Earned_Exposure[set5$Credit_Score>=787 & set5$Credit_Score<=821]
+Credit_bin5.9 <- set5$Earned_Exposure[set5$Credit_Score>=822 & set5$Credit_Score<=869]
+Credit_bin5.10 <- set5$Earned_Exposure[set5$Credit_Score>=870 & set5$Credit_Score<=997]
+
+Freq_Credit_bin5.1<-length(which(set5$Credit_Score=="0-620" & set5$Num_Claims>=1))/sum(Credit_bin5.1)
+Freq_Credit_bin5.2<-length(which(set5$Credit_Score=="621-666" & set5$Num_Claims>=1))/sum(Credit_bin5.2)
+Freq_Credit_bin5.3<-length(which(set5$Credit_Score=="667-697" & set5$Num_Claims>=1))/sum(Credit_bin5.3)
+Freq_Credit_bin5.4<-length(which(set5$Credit_Score=="698-720" & set5$Num_Claims>=1))/sum(Credit_bin5.4)
+Freq_Credit_bin5.5<-length(which(set5$Credit_Score=="721-740" & set5$Num_Claims>=1))/sum(Credit_bin5.5)
+Freq_Credit_bin5.6<-length(which(set5$Credit_Score=="741-761" & set5$Num_Claims>=1))/sum(Credit_bin5.6)
+Freq_Credit_bin5.7<-length(which(set5$Credit_Score=="762-786" & set5$Num_Claims>=1))/sum(Credit_bin5.7)
+Freq_Credit_bin5.8<-length(which(set5$Credit_Score=="787-821" & set5$Num_Claims>=1))/sum(Credit_bin5.8)
+Freq_Credit_bin5.9<-length(which(set5$Credit_Score=="822-869" & set5$Num_Claims>=1))/sum(Credit_bin5.9)
+Freq_Credit_bin5.10<-length(which(set5$Credit_Score=="870-997" & set5$Num_Claims>=1))/sum(Credit_bin5.10)
+Freq_Credit_Score5.998<-length(which(set5$Credit_Score==998 & set5$Num_Claims>=1))/sum(set5$Earned_Exposure[set5$Credit_Score==998])
+Freq_Credit_Score5.999<-length(which(set5$Credit_Score==999 & set5$Num_Claims>=1))/sum(set5$Earned_Exposure[set5$Credit_Score==999])
+
+e1<-c(Freq_Credit_Score5.998,Freq_Credit_Score5.999,Freq_Credit_bin5.1,Freq_Credit_bin5.2,Freq_Credit_bin5.3,Freq_Credit_bin5.4,Freq_Credit_bin5.5,Freq_Credit_bin5.6,Freq_Credit_bin5.7,Freq_Credit_bin5.8,Freq_Credit_bin5.9,Freq_Credit_bin5.10)
+
+
+
+
+##########MEAN###############
+
+#### Public Score ####
+
+#NA's
+meanpublic998<-mean(Freq_Public_Score1.998, Freq_Public_Score2.998, Freq_Public_Score3.998, Freq_Public_Score4.998,Freq_Public_Score5.998)
+
+#Others
+meanpublic999<-mean(Freq_Public_Score1.999, Freq_Public_Score2.999, Freq_Public_Score3.999, Freq_Public_Score4.999,Freq_Public_Score5.999) 
+meanbin1.1<-mean(Freq_Public_bin1.1, Freq_Public_bin2.1, Freq_Public_bin3.1, Freq_Public_bin4.1, Freq_Public_bin5.1)
+meanbin1.2<-mean(Freq_Public_bin1.2, Freq_Public_bin2.2, Freq_Public_bin3.2, Freq_Public_bin4.2, Freq_Public_bin5.2)
+meanbin1.3<-mean(Freq_Public_bin1.3, Freq_Public_bin2.3, Freq_Public_bin3.3, Freq_Public_bin4.3, Freq_Public_bin5.3)
+meanbin1.4<-mean(Freq_Public_bin1.4, Freq_Public_bin2.4, Freq_Public_bin3.4, Freq_Public_bin4.4, Freq_Public_bin5.4)
+meanbin1.5<-mean(Freq_Public_bin1.5, Freq_Public_bin2.5, Freq_Public_bin3.5, Freq_Public_bin4.5, Freq_Public_bin5.5)
+meanbin1.6<-mean(Freq_Public_bin1.6, Freq_Public_bin2.6, Freq_Public_bin3.6, Freq_Public_bin4.6, Freq_Public_bin5.6)
+meanbin1.7<-mean(Freq_Public_bin1.7, Freq_Public_bin2.7, Freq_Public_bin3.7, Freq_Public_bin4.7, Freq_Public_bin5.7)
+meanbin1.8<-mean(Freq_Public_bin1.8, Freq_Public_bin2.8, Freq_Public_bin3.8, Freq_Public_bin4.8, Freq_Public_bin5.8)
+meanbin1.9<-mean(Freq_Public_bin1.9, Freq_Public_bin2.9, Freq_Public_bin3.9, Freq_Public_bin4.9, Freq_Public_bin5.9)
+meanbin1.10<-mean(Freq_Public_bin1.10, Freq_Public_bin2.10, Freq_Public_bin3.10, Freq_Public_bin4.10, Freq_Public_bin5.10)
+
+publicmean <- c(meanpublic999, meanbin1.1, meanbin1.2, meanbin1.3, meanbin1.4, meanbin1.5, meanbin1.6, meanbin1.7, meanbin1.8, meanbin1.9, meanbin1.10)
+
+#### Credit Score ####
+
+meancredit998<-mean(Freq_Credit_Score1.998, Freq_Credit_Score2.998, Freq_Credit_Score3.998, Freq_Credit_Score4.998,Freq_Credit_Score5.998)
+meancredit999<-mean(Freq_Credit_Score1.999, Freq_Credit_Score2.999, Freq_Credit_Score3.999, Freq_Credit_Score4.999,Freq_Credit_Score5.999)
+meanbin2.1<-mean(Freq_Credit_bin1.1, Freq_Credit_bin2.1, Freq_Credit_bin3.1, Freq_Credit_bin4.1, Freq_Credit_bin5.1)
+meanbin2.2<-mean(Freq_Credit_bin1.2, Freq_Credit_bin2.2, Freq_Credit_bin3.2, Freq_Credit_bin4.2, Freq_Credit_bin5.2)
+meanbin2.3<-mean(Freq_Credit_bin1.3, Freq_Credit_bin2.3, Freq_Credit_bin3.3, Freq_Credit_bin4.3, Freq_Credit_bin5.3)
+meanbin2.4<-mean(Freq_Credit_bin1.4, Freq_Credit_bin2.4, Freq_Credit_bin3.4, Freq_Credit_bin4.4, Freq_Credit_bin5.4)
+meanbin2.5<-mean(Freq_Credit_bin1.5, Freq_Credit_bin2.5, Freq_Credit_bin3.5, Freq_Credit_bin4.5, Freq_Credit_bin5.5)
+meanbin2.6<-mean(Freq_Credit_bin1.6, Freq_Credit_bin2.6, Freq_Credit_bin3.6, Freq_Credit_bin4.6, Freq_Credit_bin5.6)
+meanbin2.7<-mean(Freq_Credit_bin1.7, Freq_Credit_bin2.7, Freq_Credit_bin3.7, Freq_Credit_bin4.7, Freq_Credit_bin5.7)
+meanbin2.8<-mean(Freq_Credit_bin1.8, Freq_Credit_bin2.8, Freq_Credit_bin3.8, Freq_Credit_bin4.8, Freq_Credit_bin5.8)
+meanbin2.9<-mean(Freq_Credit_bin1.9, Freq_Credit_bin2.9, Freq_Credit_bin3.9, Freq_Credit_bin4.9, Freq_Credit_bin5.9)
+meanbin2.10<-mean(Freq_Credit_bin1.10, Freq_Credit_bin2.10, Freq_Credit_bin3.10, Freq_Credit_bin4.10, Freq_Credit_bin5.10)
+
+creditmean <- c(meancredit998, meancredit999, meanbin2.1, meanbin2.2, meanbin2.3, meanbin2.4, meanbin2.5, meanbin2.6, meanbin2.7, meanbin2.8, meanbin2.9, meanbin2.10)
+
+
+
+#############sd#####################
+
+### Public Score ###
+
+#Na's
+v1.998<-c(Freq_Public_Score1.998, Freq_Public_Score2.998, Freq_Public_Score3.998, Freq_Public_Score4.998,Freq_Public_Score5.998)
+
+#Others
+v1.999<-c(Freq_Public_Score1.999, Freq_Public_Score2.999, Freq_Public_Score3.999, Freq_Public_Score4.999,Freq_Public_Score5.999) 
+v1.1<-c(Freq_Public_bin1.1, Freq_Public_bin2.1, Freq_Public_bin3.1, Freq_Public_bin4.1, Freq_Public_bin5.1)
+v1.2<-c(Freq_Public_bin1.2, Freq_Public_bin2.2, Freq_Public_bin3.2, Freq_Public_bin4.2, Freq_Public_bin5.2)
+v1.3<-c(Freq_Public_bin1.3, Freq_Public_bin2.3, Freq_Public_bin3.3, Freq_Public_bin4.3, Freq_Public_bin5.3)
+v1.4<-c(Freq_Public_bin1.4, Freq_Public_bin2.4, Freq_Public_bin3.4, Freq_Public_bin4.4, Freq_Public_bin5.4)
+v1.5<-c(Freq_Public_bin1.5, Freq_Public_bin2.5, Freq_Public_bin3.5, Freq_Public_bin4.5, Freq_Public_bin5.5)
+v1.6<-c(Freq_Public_bin1.6, Freq_Public_bin2.6, Freq_Public_bin3.6, Freq_Public_bin4.6, Freq_Public_bin5.6)
+v1.7<-c(Freq_Public_bin1.7, Freq_Public_bin2.7, Freq_Public_bin3.7, Freq_Public_bin4.7, Freq_Public_bin5.7)
+v1.8<-c(Freq_Public_bin1.8, Freq_Public_bin2.8, Freq_Public_bin3.8, Freq_Public_bin4.8, Freq_Public_bin5.8)
+v1.9<-c(Freq_Public_bin1.9, Freq_Public_bin2.9, Freq_Public_bin3.9, Freq_Public_bin4.9, Freq_Public_bin5.9)
+v1.10<-c(Freq_Public_bin1.10, Freq_Public_bin2.10, Freq_Public_bin3.10, Freq_Public_bin4.10, Freq_Public_bin5.10)
+
+
+### Credit Score ###
+
+v2.998<-c(Freq_Credit_Score1.998, Freq_Credit_Score2.998, Freq_Credit_Score3.998, Freq_Credit_Score4.998,Freq_Credit_Score5.998)
+v2.999<-c(Freq_Credit_Score1.999, Freq_Credit_Score2.999, Freq_Credit_Score3.999, Freq_Credit_Score4.999,Freq_Credit_Score5.999)
+v2.1<-c(Freq_Credit_bin1.1, Freq_Credit_bin2.1, Freq_Credit_bin3.1, Freq_Credit_bin4.1, Freq_Credit_bin5.1)
+v2.2<-c(Freq_Credit_bin1.2, Freq_Credit_bin2.2, Freq_Credit_bin3.2, Freq_Credit_bin4.2, Freq_Credit_bin5.2)
+v2.3<-c(Freq_Credit_bin1.3, Freq_Credit_bin2.3, Freq_Credit_bin3.3, Freq_Credit_bin4.3, Freq_Credit_bin5.3)
+v2.4<-c(Freq_Credit_bin1.4, Freq_Credit_bin2.4, Freq_Credit_bin3.4, Freq_Credit_bin4.4, Freq_Credit_bin5.4)
+v2.5<-c(Freq_Credit_bin1.5, Freq_Credit_bin2.5, Freq_Credit_bin3.5, Freq_Credit_bin4.5, Freq_Credit_bin5.5)
+v2.6<-c(Freq_Credit_bin1.6, Freq_Credit_bin2.6, Freq_Credit_bin3.6, Freq_Credit_bin4.6, Freq_Credit_bin5.6)
+v2.7<-c(Freq_Credit_bin1.7, Freq_Credit_bin2.7, Freq_Credit_bin3.7, Freq_Credit_bin4.7, Freq_Credit_bin5.7)
+v2.8<-c(Freq_Credit_bin1.8, Freq_Credit_bin2.8, Freq_Credit_bin3.8, Freq_Credit_bin4.8, Freq_Credit_bin5.8)
+v2.9<-c(Freq_Credit_bin1.9, Freq_Credit_bin2.9, Freq_Credit_bin3.9, Freq_Credit_bin4.9, Freq_Credit_bin5.9)
+v2.10<-c(Freq_Credit_bin1.10, Freq_Credit_bin2.10, Freq_Credit_bin3.10, Freq_Credit_bin4.10, Freq_Credit_bin5.10)
+
+
+
+###### Standard Deviations ######
+
+### Public ####
+
+#NA's
+sd1.998<-sd(v1.998)
+
+#Others
+sd1.999<-sd(v1.999)
+sd1.1<-sd(v1.1)
+sd1.2<-sd(v1.2)
+sd1.3<-sd(v1.3)
+sd1.4<-sd(v1.4)
+sd1.5<-sd(v1.5)
+sd1.6<-sd(v1.6)
+sd1.7<-sd(v1.7)
+sd1.8<-sd(v1.8)
+sd1.9<-sd(v1.9)
+sd1.10<-sd(v1.10)
+
+### Credit ###
+
+sd2.998<-sd(v2.998)
+sd2.999<-sd(v2.999)
+sd2.1<-sd(v2.1)
+sd2.2<-sd(v2.2)
+sd2.3<-sd(v2.3)
+sd2.4<-sd(v2.4)
+sd2.5<-sd(v2.5)
+sd2.6<-sd(v2.6)
+sd2.7<-sd(v2.7)
+sd2.8<-sd(v2.8)
+sd2.9<-sd(v2.9)
+sd2.10<-sd(v2.10)
+
+
+
+############Confidence Intervals#############
+#NA's
+# CI1a<-meanpublic998+sd1.998
+# CI1b<-meanpublic998-sd1.998
+# There are no 998 scores for Public
+
+#others
+CI2a<-meanpublic999+sd1.999
+CI2b<-meanpublic999-sd1.999
+
+CI3a<-meanbin1.1+sd1.1
+CI3b<-meanbin1.1-sd1.1
+
+CI4a<-meanbin1.2+sd1.2
+CI4b<-meanbin1.2-sd1.2
+
+CI5a<-meanbin1.3+sd1.3
+CI5b<-meanbin1.3-sd1.3
+
+CI6a<-meanbin1.4+sd1.4
+CI6b<-meanbin1.4-sd1.4
+
+CI7a<-meanbin1.5+sd1.5
+CI7b<-meanbin1.5-sd1.5
+
+CI8a<-meanbin1.6+sd1.6
+CI8b<-meanbin1.6-sd1.6
+
+CI9a<-meanbin1.7+sd1.7
+CI9b<-meanbin1.7-sd1.7
+
+CI10a<-meanbin1.8+sd1.8
+CI10b<-meanbin1.8-sd1.8
+
+CI11a<-meanbin1.9+sd1.9
+CI11b<-meanbin1.9-sd1.9
+
+CI12a<-meanbin1.10+sd1.10
+CI12b<-meanbin1.10-sd1.10
+
+publicCI.upper <- c(CI2a, CI3a, CI4a, CI5a, CI6a, CI7a, CI8a, CI9a, CI10a, CI11a, CI12a)
+publicCI.lower <- c(CI2b, CI3b, CI4b, CI5b, CI6b, CI7b, CI8b, CI9b, CI10b, CI11b, CI12b)
+
+CI13a<-meancredit998+sd2.998
+CI13b<-meancredit998-sd2.998
+
+CI14a<-meancredit999+sd2.999
+CI14b<-meancredit999-sd2.999
+
+CI15a<-meanbin2.1+sd2.1
+CI15b<-meanbin2.1-sd2.1
+
+CI16a<-meanbin2.2+sd2.2
+CI16b<-meanbin2.2-sd2.2
+
+CI17a<-meanbin2.3+sd2.3
+CI17b<-meanbin2.3-sd2.3
+
+CI18a<-meanbin2.4+sd2.4
+CI18b<-meanbin2.4-sd2.4
+
+CI19a<-meanbin2.5+sd2.5
+CI19b<-meanbin2.5-sd2.5
+
+CI20a<-meanbin2.6+sd2.6
+CI20b<-meanbin2.6-sd2.6
+
+CI21a<-meanbin2.7+sd2.7
+CI21b<-meanbin2.7-sd2.7
+
+CI22a<-meanbin2.8+sd2.8
+CI22b<-meanbin2.8-sd2.8
+
+CI23a<-meanbin2.9+sd2.9
+CI23b<-meanbin2.9-sd2.9
+
+CI24a<-meanbin2.10+sd2.10
+CI24b<-meanbin2.10-sd2.10
+
+creditCI.upper <- c(CI13a, CI14a, CI15a, CI16a, CI17a,  CI18a, CI19a, CI20a, CI21a, CI22a, CI23a, CI24a)
+creditCI.lower <- c(CI13b, CI14b, CI15b, CI16b, CI17b,  CI18b, CI19b, CI20b, CI21b, CI22b, CI23b, CI24b)
+
+
+plot(publicmean, main="Probability of Claim in Public Score Ranges", xaxt="n", xlab = "", ylab = "Frequency", cex=1, type="o", col=3, lwd=5, ylim=c(0.035,0.057))
+polygon(c(1:11,rev(1:11)),c(publicCI.lower,rev(publicCI.upper)), col=rgb(0,0,0,0.2), border=FALSE)
+lines(1:11, publicCI.upper, col="black", type="l", lty=3, lwd=2)
+lines(1:11, publicCI.lower, col="black", type="l", lty=3, lwd=2)
+points(c(1:11,rev(1:11)),c(publicCI.lower,rev(publicCI.upper)), col="black", pch=20, cex=1)
+axis(1, at=c(1,2,3,4,5,6,7,8,9,10,11), labels=c("No Score","0-638","639-685","686-715","716-740","741-760","761-782","783-805","806-829","830-856","857-997"),las=2)
+
+
+
+
+plot(creditmean, main="Probability of Claim in Credit Score Ranges", xaxt="n", xlab = "", ylab = "Probability", cex=1, type="o", col=3, lwd=5, ylim=c(0.028,0.062))
+polygon(c(1:12,rev(1:12)),c(creditCI.lower,rev(creditCI.upper)), col=rgb(0,0,0,0.2), border=FALSE)
+lines(1:12, creditCI.upper, col="black", type="l", lty=3, lwd=2)
+lines(1:12, creditCI.lower, col="black", type="l", lty=3, lwd=2)
+points(c(1:12,rev(1:12)),c(creditCI.lower,rev(creditCI.upper)), col="black", pch=20, cex=1)
+axis(1, at=c(1,2,3,4,5,6,7,8,9,10,11,12), labels=c("No History","No Score","0-620","621-666","667-697","698-720","721-740","741-761","762-786","787-821","822-869","870-997"),las=2)
+
