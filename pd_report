@@ -1,0 +1,1292 @@
+##import the data with numerical car density##
+pd<-read.csv("pdfinaldata.csv", header=T, sep=",")
+
+##exclude missing and invalid observations###
+sb5<-subset(pd, pd$Total_Losses!="" & pd$Veh_Type_Symbol!="")
+sb4<-subset(sb5, sb5$Car_Density!="" & sb5$Prior_BILimit!="")
+sb1<-subset(sb4, sb4$Public_Score!="" & sb4$Credit_Score!="")
+sb1$Driver_Age<-as.numeric(as.character(sb1$Driver_Age))
+sb11<-subset(sb1, sb1$Driver_Age>=16 & sb1$Vehicle_Age>=-1)
+sb<-na.omit(data.frame(sb11))
+str(sb)
+
+
+##make driver age to factors with 6 groups####
+sb$Driver_Age[sb$Driver_Age<=24]="16-24"
+sb$Driver_Age[sb$Driver_Age<=30 & sb$Driver_Age>=25]="25-30"
+sb$Driver_Age[sb$Driver_Age<=40 & sb$Driver_Age>=31]="31-40"
+sb$Driver_Age[sb$Driver_Age<=60 & sb$Driver_Age>=41]="41-60"
+sb$Driver_Age[sb$Driver_Age>=60]="61+"
+sb$Driver_Age<-factor(sb$Driver_Age)
+
+
+###make year into three groups#####
+sb$Year<-factor(as.character(sb$Year))
+
+###make Coll_Ded into groups#####
+sb$PD_Limit<-factor(as.character(sb$PD_Limit))
+####Number of vehciles and drivers#######
+sb$NumVehicles<-factor(as.character(sb$NumVehicles))
+sb$NumDrivers<-factor(as.character(sb$NumDrivers))
+
+
+###split data using random selection. We save the data, so we dont get different data each time we run the code####
+splitdata<-split(sb[1:nrow(sb),], sample(rep(1:5, as.integer(nrow(sb)/5))))
+pdtest1<-splitdata[[1]]
+pdtrain1<-rbind(splitdata[[2]], splitdata[[3]], splitdata[[4]], splitdata[[5]])
+pdtest2<-splitdata[[2]]
+pdtrain2<-rbind(splitdata[[1]], splitdata[[3]], splitdata[[4]], splitdata[[5]])
+pdtest3<-splitdata[[3]]
+pdtrain3<-rbind(splitdata[[1]], splitdata[[2]], splitdata[[4]], splitdata[[5]])
+pdtest4<-splitdata[[4]]
+pdtrain4<-rbind(splitdata[[1]], splitdata[[2]], splitdata[[3]], splitdata[[5]])
+pdtest5<-splitdata[[5]]
+pdtrain5<-rbind(splitdata[[1]], splitdata[[2]], splitdata[[3]], splitdata[[4]])
+
+save(pdtrain1, file="pdtrain1.RData")
+save(pdtrain2, file="pdtrain2.RData")
+save(pdtrain3, file="pdtrain3.RData")
+save(pdtrain4, file="pdtrain4.RData")
+save(pdtrain5, file="pdtrain5.RData")
+
+save(pdtest1, file="pdtest1.RData")
+save(pdtest2, file="pdtest2.RData")
+save(pdtest3, file="pdtest3.RData")
+save(pdtest4, file="pdtest4.RData")
+save(pdtest5, file="pdtest5.RData")
+
+load("pdtrain1.RData")
+load("pdtrain2.RData")
+load("pdtrain3.RData")
+load("pdtrain4.RData")
+load("pdtrain5.RData")
+load("pdtest1.RData")
+load("pdtest2.RData")
+load("pdtest3.RData")
+load("pdtest4.RData")
+load("pdtest5.RData")
+
+#############################################################
+####Note that I split the data before bucketing the scores,###############
+##### this is becasue GAM model uses continuous scores##############
+#############################################################
+
+
+ #############Scores#########################
+############################################
+################ 10 BUCKETS ################
+############################################
+#############################################################
+####Note that I split the data before bucketing the scores,###############
+##### this is becasue GAM model uses continuous scores##############
+#############################################################
+pdtrain1$Credit_Score[pdtrain1$Credit_Score<=611]="0-611"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=612 & pdtrain1$Credit_Score<=656]="612-656"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=657 & pdtrain1$Credit_Score<=689]="657-689"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=690 & pdtrain1$Credit_Score<=714]="690-714"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=715 & pdtrain1$Credit_Score<=735]="715-735"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=736 & pdtrain1$Credit_Score<=757]="736-757"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=758 & pdtrain1$Credit_Score<=781]="758-781"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=782 & pdtrain1$Credit_Score<=817]="782-817"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=818 & pdtrain1$Credit_Score<=868]="818-868"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score>=869 & pdtrain1$Credit_Score<=997]="869-997"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score==998]="No History"
+pdtrain1$Credit_Score[pdtrain1$Credit_Score==999]="No Score"
+
+pdtrain1$Public_Score[pdtrain1$Public_Score<=633]="0-633"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=634 & pdtrain1$Public_Score<=681]="634-681"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=682 & pdtrain1$Public_Score<=711]="682-711"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=712 & pdtrain1$Public_Score<=737]="712-737"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=738 & pdtrain1$Public_Score<=757]="738-757"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=758 & pdtrain1$Public_Score<=779]="758-779"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=780 & pdtrain1$Public_Score<=802]="780-802"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=803 & pdtrain1$Public_Score<=826]="803-826"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=827 & pdtrain1$Public_Score<=852]="827-852"
+pdtrain1$Public_Score[pdtrain1$Public_Score>=853 & pdtrain1$Public_Score<=997]="853-997"
+pdtrain1$Public_Score[pdtrain1$Public_Score==998]="No History"
+pdtrain1$Public_Score[pdtrain1$Public_Score==999]="No Score"
+
+
+########################################################
+##############then do the same for colltrain2,3,4,5#############
+pdtrain2$Credit_Score[pdtrain2$Credit_Score<=620]="0-620"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=621 & pdtrain2$Credit_Score<=666]="621-666"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=667 & pdtrain2$Credit_Score<=697]="667-697"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=698 & pdtrain2$Credit_Score<=720]="698-720"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=721 & pdtrain2$Credit_Score<=740]="721-740"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=741 & pdtrain2$Credit_Score<=761]="741-761"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=762 & pdtrain2$Credit_Score<=786]="762-786"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=787 & pdtrain2$Credit_Score<=821]="787-821"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=822 & pdtrain2$Credit_Score<=869]="822-869"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=870 & pdtrain2$Credit_Score<=997]="870-997"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score==998]="no history"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score==999]="no score"
+
+pdtrain2$Credit_Score[pdtrain2$Credit_Score<=611]="0-611"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=612 & pdtrain2$Credit_Score<=656]="612-656"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=657 & pdtrain2$Credit_Score<=689]="657-689"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=690 & pdtrain2$Credit_Score<=714]="690-714"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=715 & pdtrain2$Credit_Score<=735]="715-735"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=736 & pdtrain2$Credit_Score<=757]="736-757"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=758 & pdtrain2$Credit_Score<=781]="758-781"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=782 & pdtrain2$Credit_Score<=817]="782-817"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=818 & pdtrain2$Credit_Score<=868]="818-868"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score>=869 & pdtrain2$Credit_Score<=997]="869-997"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score==998]="No History"
+pdtrain2$Credit_Score[pdtrain2$Credit_Score==999]="No Score"
+
+pdtrain2$Public_Score[pdtrain2$Public_Score<=633]="0-633"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=634 & pdtrain2$Public_Score<=681]="634-681"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=682 & pdtrain2$Public_Score<=711]="682-711"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=712 & pdtrain2$Public_Score<=737]="712-737"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=738 & pdtrain2$Public_Score<=757]="738-757"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=758 & pdtrain2$Public_Score<=779]="758-779"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=780 & pdtrain2$Public_Score<=802]="780-802"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=803 & pdtrain2$Public_Score<=826]="803-826"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=827 & pdtrain2$Public_Score<=852]="827-852"
+pdtrain2$Public_Score[pdtrain2$Public_Score>=853 & pdtrain2$Public_Score<=997]="853-997"
+pdtrain2$Public_Score[pdtrain2$Public_Score==998]="No History"
+pdtrain2$Public_Score[pdtrain2$Public_Score==999]="No Score"
+
+pdtrain3$Credit_Score[pdtrain3$Credit_Score<=611]="0-611"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=612 & pdtrain3$Credit_Score<=656]="612-656"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=657 & pdtrain3$Credit_Score<=689]="657-689"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=690 & pdtrain3$Credit_Score<=714]="690-714"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=715 & pdtrain3$Credit_Score<=735]="715-735"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=736 & pdtrain3$Credit_Score<=757]="736-757"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=758 & pdtrain3$Credit_Score<=781]="758-781"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=782 & pdtrain3$Credit_Score<=817]="782-817"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=818 & pdtrain3$Credit_Score<=868]="818-868"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score>=869 & pdtrain3$Credit_Score<=997]="869-997"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score==998]="No History"
+pdtrain3$Credit_Score[pdtrain3$Credit_Score==999]="No Score"
+
+pdtrain3$Public_Score[pdtrain3$Public_Score<=633]="0-633"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=634 & pdtrain3$Public_Score<=681]="634-681"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=682 & pdtrain3$Public_Score<=711]="682-711"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=712 & pdtrain3$Public_Score<=737]="712-737"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=738 & pdtrain3$Public_Score<=757]="738-757"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=758 & pdtrain3$Public_Score<=779]="758-779"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=780 & pdtrain3$Public_Score<=802]="780-802"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=803 & pdtrain3$Public_Score<=826]="803-826"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=827 & pdtrain3$Public_Score<=852]="827-852"
+pdtrain3$Public_Score[pdtrain3$Public_Score>=853 & pdtrain3$Public_Score<=997]="853-997"
+pdtrain3$Public_Score[pdtrain3$Public_Score==998]="No History"
+pdtrain3$Public_Score[pdtrain3$Public_Score==999]="No Score"
+
+pdtrain4$Credit_Score[pdtrain4$Credit_Score<=611]="0-611"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=612 & pdtrain4$Credit_Score<=656]="612-656"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=657 & pdtrain4$Credit_Score<=689]="657-689"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=690 & pdtrain4$Credit_Score<=714]="690-714"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=715 & pdtrain4$Credit_Score<=735]="715-735"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=736 & pdtrain4$Credit_Score<=757]="736-757"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=758 & pdtrain4$Credit_Score<=781]="758-781"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=782 & pdtrain4$Credit_Score<=817]="782-817"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=818 & pdtrain4$Credit_Score<=868]="818-868"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score>=869 & pdtrain4$Credit_Score<=997]="869-997"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score==998]="No History"
+pdtrain4$Credit_Score[pdtrain4$Credit_Score==999]="No Score"
+
+pdtrain4$Public_Score[pdtrain4$Public_Score<=633]="0-633"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=634 & pdtrain4$Public_Score<=681]="634-681"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=682 & pdtrain4$Public_Score<=711]="682-711"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=712 & pdtrain4$Public_Score<=737]="712-737"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=738 & pdtrain4$Public_Score<=757]="738-757"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=758 & pdtrain4$Public_Score<=779]="758-779"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=780 & pdtrain4$Public_Score<=802]="780-802"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=803 & pdtrain4$Public_Score<=826]="803-826"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=827 & pdtrain4$Public_Score<=852]="827-852"
+pdtrain4$Public_Score[pdtrain4$Public_Score>=853 & pdtrain4$Public_Score<=997]="853-997"
+pdtrain4$Public_Score[pdtrain4$Public_Score==998]="No History"
+pdtrain4$Public_Score[pdtrain4$Public_Score==999]="No Score"
+
+pdtrain5$Credit_Score[pdtrain5$Credit_Score<=611]="0-611"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=612 & pdtrain5$Credit_Score<=656]="612-656"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=657 & pdtrain5$Credit_Score<=689]="657-689"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=690 & pdtrain5$Credit_Score<=714]="690-714"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=715 & pdtrain5$Credit_Score<=735]="715-735"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=736 & pdtrain5$Credit_Score<=757]="736-757"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=758 & pdtrain5$Credit_Score<=781]="758-781"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=782 & pdtrain5$Credit_Score<=817]="782-817"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=818 & pdtrain5$Credit_Score<=868]="818-868"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score>=869 & pdtrain5$Credit_Score<=997]="869-997"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score==998]="No History"
+pdtrain5$Credit_Score[pdtrain5$Credit_Score==999]="No Score"
+
+pdtrain1$Credit_Score<-factor(pdtrain1$Credit_Score)
+pdtrain2$Credit_Score<-factor(pdtrain2$Credit_Score)
+pdtrain3$Credit_Score<-factor(pdtrain3$Credit_Score)
+pdtrain4$Credit_Score<-factor(pdtrain4$Credit_Score)
+pdtrain5$Credit_Score<-factor(pdtrain5$Credit_Score)
+
+pdtrain5$Public_Score[pdtrain5$Public_Score<=633]="0-633"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=634 & pdtrain5$Public_Score<=681]="634-681"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=682 & pdtrain5$Public_Score<=711]="682-711"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=712 & pdtrain5$Public_Score<=737]="712-737"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=738 & pdtrain5$Public_Score<=757]="738-757"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=758 & pdtrain5$Public_Score<=779]="758-779"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=780 & pdtrain5$Public_Score<=802]="780-802"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=803 & pdtrain5$Public_Score<=826]="803-826"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=827 & pdtrain5$Public_Score<=852]="827-852"
+pdtrain5$Public_Score[pdtrain5$Public_Score>=853 & pdtrain5$Public_Score<=997]="853-997"
+pdtrain5$Public_Score[pdtrain5$Public_Score==998]="No History"
+pdtrain5$Public_Score[pdtrain5$Public_Score==999]="No Score"
+
+
+pdtest1$Credit_Score[pdtest1$Credit_Score<=611]="0-611"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=612 & pdtest1$Credit_Score<=656]="612-656"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=657 & pdtest1$Credit_Score<=689]="657-689"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=690 & pdtest1$Credit_Score<=714]="690-714"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=715 & pdtest1$Credit_Score<=735]="715-735"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=736 & pdtest1$Credit_Score<=757]="736-757"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=758 & pdtest1$Credit_Score<=781]="758-781"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=782 & pdtest1$Credit_Score<=817]="782-817"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=818 & pdtest1$Credit_Score<=868]="818-868"
+pdtest1$Credit_Score[pdtest1$Credit_Score>=869 & pdtest1$Credit_Score<=997]="869-997"
+pdtest1$Credit_Score[pdtest1$Credit_Score==998]="No History"
+pdtest1$Credit_Score[pdtest1$Credit_Score==999]="No Score"
+
+pdtest1$Public_Score[pdtest1$Public_Score<=633]="0-633"
+pdtest1$Public_Score[pdtest1$Public_Score>=634 & pdtest1$Public_Score<=681]="634-681"
+pdtest1$Public_Score[pdtest1$Public_Score>=682 & pdtest1$Public_Score<=711]="682-711"
+pdtest1$Public_Score[pdtest1$Public_Score>=712 & pdtest1$Public_Score<=737]="712-737"
+pdtest1$Public_Score[pdtest1$Public_Score>=738 & pdtest1$Public_Score<=757]="738-757"
+pdtest1$Public_Score[pdtest1$Public_Score>=758 & pdtest1$Public_Score<=779]="758-779"
+pdtest1$Public_Score[pdtest1$Public_Score>=780 & pdtest1$Public_Score<=802]="780-802"
+pdtest1$Public_Score[pdtest1$Public_Score>=803 & pdtest1$Public_Score<=826]="803-826"
+pdtest1$Public_Score[pdtest1$Public_Score>=827 & pdtest1$Public_Score<=852]="827-852"
+pdtest1$Public_Score[pdtest1$Public_Score>=853 & pdtest1$Public_Score<=997]="853-997"
+pdtest1$Public_Score[pdtest1$Public_Score==998]="No History"
+pdtest1$Public_Score[pdtest1$Public_Score==999]="No Score"
+########################################################
+##############then do the same for pdtest2,3,4,5#############
+pdtest2$Credit_Score[pdtest2$Credit_Score<=611]="0-611"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=612 & pdtest2$Credit_Score<=656]="612-656"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=657 & pdtest2$Credit_Score<=689]="657-689"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=690 & pdtest2$Credit_Score<=714]="690-714"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=715 & pdtest2$Credit_Score<=735]="715-735"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=736 & pdtest2$Credit_Score<=757]="736-757"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=758 & pdtest2$Credit_Score<=781]="758-781"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=782 & pdtest2$Credit_Score<=817]="782-817"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=818 & pdtest2$Credit_Score<=868]="818-868"
+pdtest2$Credit_Score[pdtest2$Credit_Score>=869 & pdtest2$Credit_Score<=997]="869-997"
+pdtest2$Credit_Score[pdtest2$Credit_Score==998]="No History"
+pdtest2$Credit_Score[pdtest2$Credit_Score==999]="No Score"
+
+pdtest2$Public_Score[pdtest2$Public_Score<=633]="0-633"
+pdtest2$Public_Score[pdtest2$Public_Score>=634 & pdtest2$Public_Score<=681]="634-681"
+pdtest2$Public_Score[pdtest2$Public_Score>=682 & pdtest2$Public_Score<=711]="682-711"
+pdtest2$Public_Score[pdtest2$Public_Score>=712 & pdtest2$Public_Score<=737]="712-737"
+pdtest2$Public_Score[pdtest2$Public_Score>=738 & pdtest2$Public_Score<=757]="738-757"
+pdtest2$Public_Score[pdtest2$Public_Score>=758 & pdtest2$Public_Score<=779]="758-779"
+pdtest2$Public_Score[pdtest2$Public_Score>=780 & pdtest2$Public_Score<=802]="780-802"
+pdtest2$Public_Score[pdtest2$Public_Score>=803 & pdtest2$Public_Score<=826]="803-826"
+pdtest2$Public_Score[pdtest2$Public_Score>=827 & pdtest2$Public_Score<=852]="827-852"
+pdtest2$Public_Score[pdtest2$Public_Score>=853 & pdtest2$Public_Score<=997]="853-997"
+pdtest2$Public_Score[pdtest2$Public_Score==998]="No History"
+pdtest2$Public_Score[pdtest2$Public_Score==999]="No Score"
+
+pdtest3$Credit_Score[pdtest3$Credit_Score<=611]="0-611"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=612 & pdtest3$Credit_Score<=656]="612-656"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=657 & pdtest3$Credit_Score<=689]="657-689"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=690 & pdtest3$Credit_Score<=714]="690-714"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=715 & pdtest3$Credit_Score<=735]="715-735"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=736 & pdtest3$Credit_Score<=757]="736-757"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=758 & pdtest3$Credit_Score<=781]="758-781"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=782 & pdtest3$Credit_Score<=817]="782-817"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=818 & pdtest3$Credit_Score<=868]="818-868"
+pdtest3$Credit_Score[pdtest3$Credit_Score>=869 & pdtest3$Credit_Score<=997]="869-997"
+pdtest3$Credit_Score[pdtest3$Credit_Score==998]="No History"
+pdtest3$Credit_Score[pdtest3$Credit_Score==999]="No Score"
+
+pdtest3$Public_Score[pdtest3$Public_Score<=633]="0-633"
+pdtest3$Public_Score[pdtest3$Public_Score>=634 & pdtest3$Public_Score<=681]="634-681"
+pdtest3$Public_Score[pdtest3$Public_Score>=682 & pdtest3$Public_Score<=711]="682-711"
+pdtest3$Public_Score[pdtest3$Public_Score>=712 & pdtest3$Public_Score<=737]="712-737"
+pdtest3$Public_Score[pdtest3$Public_Score>=738 & pdtest3$Public_Score<=757]="738-757"
+pdtest3$Public_Score[pdtest3$Public_Score>=758 & pdtest3$Public_Score<=779]="758-779"
+pdtest3$Public_Score[pdtest3$Public_Score>=780 & pdtest3$Public_Score<=802]="780-802"
+pdtest3$Public_Score[pdtest3$Public_Score>=803 & pdtest3$Public_Score<=826]="803-826"
+pdtest3$Public_Score[pdtest3$Public_Score>=827 & pdtest3$Public_Score<=852]="827-852"
+pdtest3$Public_Score[pdtest3$Public_Score>=853 & pdtest3$Public_Score<=997]="853-997"
+pdtest3$Public_Score[pdtest3$Public_Score==998]="No History"
+pdtest3$Public_Score[pdtest3$Public_Score==999]="No Score"
+
+pdtest4$Credit_Score[pdtest4$Credit_Score<=611]="0-611"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=612 & pdtest4$Credit_Score<=656]="612-656"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=657 & pdtest4$Credit_Score<=689]="657-689"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=690 & pdtest4$Credit_Score<=714]="690-714"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=715 & pdtest4$Credit_Score<=735]="715-735"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=736 & pdtest4$Credit_Score<=757]="736-757"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=758 & pdtest4$Credit_Score<=781]="758-781"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=782 & pdtest4$Credit_Score<=817]="782-817"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=818 & pdtest4$Credit_Score<=868]="818-868"
+pdtest4$Credit_Score[pdtest4$Credit_Score>=869 & pdtest4$Credit_Score<=997]="869-997"
+pdtest4$Credit_Score[pdtest4$Credit_Score==998]="No History"
+pdtest4$Credit_Score[pdtest4$Credit_Score==999]="No Score"
+
+pdtest4$Public_Score[pdtest4$Public_Score<=633]="0-633"
+pdtest4$Public_Score[pdtest4$Public_Score>=634 & pdtest4$Public_Score<=681]="634-681"
+pdtest4$Public_Score[pdtest4$Public_Score>=682 & pdtest4$Public_Score<=711]="682-711"
+pdtest4$Public_Score[pdtest4$Public_Score>=712 & pdtest4$Public_Score<=737]="712-737"
+pdtest4$Public_Score[pdtest4$Public_Score>=738 & pdtest4$Public_Score<=757]="738-757"
+pdtest4$Public_Score[pdtest4$Public_Score>=758 & pdtest4$Public_Score<=779]="758-779"
+pdtest4$Public_Score[pdtest4$Public_Score>=780 & pdtest4$Public_Score<=802]="780-802"
+pdtest4$Public_Score[pdtest4$Public_Score>=803 & pdtest4$Public_Score<=826]="803-826"
+pdtest4$Public_Score[pdtest4$Public_Score>=827 & pdtest4$Public_Score<=852]="827-852"
+pdtest4$Public_Score[pdtest4$Public_Score>=853 & pdtest4$Public_Score<=997]="853-997"
+pdtest4$Public_Score[pdtest4$Public_Score==998]="No History"
+pdtest4$Public_Score[pdtest4$Public_Score==999]="No Score"
+
+pdtest5$Credit_Score[pdtest5$Credit_Score<=611]="0-611"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=612 & pdtest5$Credit_Score<=656]="612-656"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=657 & pdtest5$Credit_Score<=689]="657-689"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=690 & pdtest5$Credit_Score<=714]="690-714"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=715 & pdtest5$Credit_Score<=735]="715-735"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=736 & pdtest5$Credit_Score<=757]="736-757"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=758 & pdtest5$Credit_Score<=781]="758-781"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=782 & pdtest5$Credit_Score<=817]="782-817"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=818 & pdtest5$Credit_Score<=868]="818-868"
+pdtest5$Credit_Score[pdtest5$Credit_Score>=869 & pdtest5$Credit_Score<=997]="869-997"
+pdtest5$Credit_Score[pdtest5$Credit_Score==998]="No History"
+pdtest5$Credit_Score[pdtest5$Credit_Score==999]="No Score"
+
+pdtest5$Public_Score[pdtest5$Public_Score<=633]="0-633"
+pdtest5$Public_Score[pdtest5$Public_Score>=634 & pdtest5$Public_Score<=681]="634-681"
+pdtest5$Public_Score[pdtest5$Public_Score>=682 & pdtest5$Public_Score<=711]="682-711"
+pdtest5$Public_Score[pdtest5$Public_Score>=712 & pdtest5$Public_Score<=737]="712-737"
+pdtest5$Public_Score[pdtest5$Public_Score>=738 & pdtest5$Public_Score<=757]="738-757"
+pdtest5$Public_Score[pdtest5$Public_Score>=758 & pdtest5$Public_Score<=779]="758-779"
+pdtest5$Public_Score[pdtest5$Public_Score>=780 & pdtest5$Public_Score<=802]="780-802"
+pdtest5$Public_Score[pdtest5$Public_Score>=803 & pdtest5$Public_Score<=826]="803-826"
+pdtest5$Public_Score[pdtest5$Public_Score>=827 & pdtest5$Public_Score<=852]="827-852"
+pdtest5$Public_Score[pdtest5$Public_Score>=853 & pdtest5$Public_Score<=997]="853-997"
+pdtest5$Public_Score[pdtest5$Public_Score==998]="No History"
+pdtest5$Public_Score[pdtest5$Public_Score==999]="No Score"
+
+
+
+
+###################################################
+####GLM poisson (use every predictors) number ###########
+##########of claims for each training set#################
+###################################################
+pdtest1$Credit_Score<-factor(pdtest1$Credit_Score)
+pdtest2$Credit_Score<-factor(pdtest2$Credit_Score)
+pdtest3$Credit_Score<-factor(pdtest3$Credit_Score)
+pdtest4$Credit_Score<-factor(pdtest4$Credit_Score)
+pdtest5$Credit_Score<-factor(pdtest5$Credit_Score)
+
+pdtest1$Public_Score<-factor(pdtest1$Public_Score)
+pdtest2$Public_Score<-factor(pdtest2$Public_Score)
+pdtest3$Public_Score<-factor(pdtest3$Public_Score)
+pdtest4$Public_Score<-factor(pdtest4$Public_Score)
+pdtest5$Public_Score<-factor(pdtest5$Public_Score)
+
+pdtrain1$Public_Score<-factor(pdtrain1$Public_Score)
+pdtrain2$Public_Score<-factor(pdtrain2$Public_Score)
+pdtrain3$Public_Score<-factor(pdtrain3$Public_Score)
+pdtrain4$Public_Score<-factor(pdtrain4$Public_Score)
+pdtrain5$Public_Score<-factor(pdtrain5$Public_Score)
+
+poi.glm.full.set1<-glm(Num_Claims~Public_Score+Credit_Score+Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol, offset=log(Earned_Exposure), family=poisson(link=log), data=pdtrain1)
+
+poi.glm.full.set2<-glm(Num_Claims~Public_Score+Credit_Score+Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain2)
+
+poi.glm.full.set3<-glm(Num_Claims~Public_Score+Credit_Score+Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain3)
+
+poi.glm.full.set4<-glm(Num_Claims~Public_Score+Credit_Score+Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain4)
+
+poi.glm.full.set5<-glm(Num_Claims~Public_Score+Credit_Score+Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain5)
+
+###models with neither credit and public####
+poi.glm.nobothscore.set1<-glm(Num_Claims~PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain1)
+
+poi.glm.nobothscore.set2<-glm(Num_Claims~PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain2)
+
+poi.glm.nobothscore.set3<-glm(Num_Claims~PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain3)
+
+poi.glm.nobothscore.set4<-glm(Num_Claims~PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain4)
+
+poi.glm.nobothscore.set5<-glm(Num_Claims~PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain5)
+
+###models without public score #######
+poi.glm.nopublic.set1<-glm(Num_Claims~Credit_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain1)
+
+poi.glm.nopublic.set2<-glm(Num_Claims~Credit_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain2)
+
+poi.glm.nopublic.set3<-glm(Num_Claims~Credit_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain3)
+
+poi.glm.nopublic.set4<-glm(Num_Claims~Credit_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain4)
+
+poi.glm.nopublic.set5<-glm(Num_Claims~Credit_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain5)
+
+#####models without credit score####
+poi.glm.nocredit.set1<-glm(Num_Claims~Public_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain1)
+
+poi.glm.nocredit.set2<-glm(Num_Claims~Public_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain2)
+
+poi.glm.nocredit.set3<-glm(Num_Claims~Public_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain3)
+
+poi.glm.nocredit.set4<-glm(Num_Claims~Public_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain4)
+
+poi.glm.nocredit.set5<-glm(Num_Claims~Public_Score+PD_Limit+Year+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain5)
+
+
+####anova test for public score####
+anova(poi.glm.nobothscore.set1, poi.glm.nocredit.set1, test="Chisq")
+anova(poi.glm.nobothscore.set2, poi.glm.nocredit.set2, test="Chisq")
+anova(poi.glm.nobothscore.set3, poi.glm.nocredit.set3, test="Chisq")
+anova(poi.glm.nobothscore.set4, poi.glm.nocredit.set4, test="Chisq")
+anova(poi.glm.nobothscore.set5, poi.glm.nocredit.set5, test="Chisq")
+#########################################################
+##the above show public is significant in a model without credit###
+anova(poi.glm.nopublic.set1, poi.glm.full.set1, test="Chisq")
+anova(poi.glm.nopublic.set2, poi.glm.full.set2, test="Chisq")
+anova(poi.glm.nopublic.set3, poi.glm.full.set3, test="Chisq")
+anova(poi.glm.nopublic.set4, poi.glm.full.set4, test="Chisq")
+anova(poi.glm.nopublic.set5, poi.glm.full.set5, test="Chisq")
+
+###find the mean and max coefficients of these 5 subsets
+coef.mean.full<-(coef(poi.glm.full.set1)+coef(poi.glm.full.set2)+coef(poi.glm.full.set3)+coef(poi.glm.full.set4)+coef(poi.glm.full.set5))/5
+coef1<-cbind(coef(poi.glm.full.set1),coef(poi.glm.full.set2),coef(poi.glm.full.set3),coef(poi.glm.full.set4),coef(poi.glm.full.set5))
+min.coef<-cbind(coef(poi.glm.full.set1))
+min.coef[,1]<-NaN
+min.coef[c(1),]<-min(coef1[c(1),])
+min.coef[c(2),]<-min(coef1[c(2),])
+min.coef[c(3),]<-min(coef1[c(3),])
+min.coef[c(4),]<-min(coef1[c(4),])
+min.coef[c(5),]<-min(coef1[c(5),])
+min.coef[c(6),]<-min(coef1[c(6),])
+min.coef[c(7),]<-min(coef1[c(7),])
+min.coef[c(8),]<-min(coef1[c(8),])
+min.coef[c(9),]<-min(coef1[c(9),])
+min.coef[c(10),]<-min(coef1[c(10),])
+min.coef[c(11),]<-min(coef1[c(11),])
+min.coef[c(12),]<-min(coef1[c(12),])
+min.coef[c(13),]<-min(coef1[c(13),])
+min.coef[c(14),]<-min(coef1[c(14),])
+min.coef[c(15),]<-min(coef1[c(15),])
+min.coef[c(16),]<-min(coef1[c(16),])
+min.coef[c(17),]<-min(coef1[c(17),])
+min.coef[c(18),]<-min(coef1[c(18),])
+min.coef[c(19),]<-min(coef1[c(19),])
+min.coef[c(20),]<-min(coef1[c(20),])
+min.coef[c(21),]<-min(coef1[c(21),])
+min.coef[c(22),]<-min(coef1[c(22),])
+
+
+max.coef<-cbind(coef(poi.glm.full.set1))
+max.coef[,1]<-NaN
+max.coef[c(1),]<-max(coef1[c(1),])
+max.coef[c(2),]<-max(coef1[c(2),])
+max.coef[c(3),]<-max(coef1[c(3),])
+max.coef[c(4),]<-max(coef1[c(4),])
+max.coef[c(5),]<-max(coef1[c(5),])
+max.coef[c(6),]<-max(coef1[c(6),])
+max.coef[c(7),]<-max(coef1[c(7),])
+max.coef[c(8),]<-max(coef1[c(8),])
+max.coef[c(9),]<-max(coef1[c(9),])
+max.coef[c(10),]<-max(coef1[c(10),])
+max.coef[c(11),]<-max(coef1[c(11),])
+max.coef[c(12),]<-max(coef1[c(12),])
+max.coef[c(13),]<-max(coef1[c(13),])
+max.coef[c(14),]<-max(coef1[c(14),])
+max.coef[c(15),]<-max(coef1[c(15),])
+max.coef[c(16),]<-max(coef1[c(16),])
+max.coef[c(17),]<-max(coef1[c(17),])
+max.coef[c(18),]<-max(coef1[c(18),])
+max.coef[c(19),]<-max(coef1[c(19),])
+max.coef[c(20),]<-max(coef1[c(20),])
+max.coef[c(21),]<-max(coef1[c(21),])
+max.coef[c(22),]<-max(coef1[c(22),])
+
+
+#####plot the mean, min, and max coefficients######
+library(arm)
+coefplot.names<-c("Public: no score", "Public: 634-681", "Public: 682-711", "Public: 712-737", "Public: 738-757", "Public: 758-779", "Public: 780-802", "Public: 803-826", "Public: 827-852 ", "Public: 853-997", "Credit: no history", "Credit: no score","Credit: 612-656", "Credit: 657-689", "Credit: 690-714", "Credit: 715-735", "Credit: 736-757", "Credit: 758-781", "Credit: 782-817", "Credit: 818-868", "Credit: 869-997")
+coefplot(coef.mean.full[c(11, 2:10, 21, 22, 12:20)],sd=0, lower.conf.bounds=min.coef[c(11, 2:10, 21, 22, 12:20)], upper.conf.bounds=max.coef[c(11, 2:10, 21, 22, 12:20)], varnames=coefplot.names,cex.pts=1.5, main="", mar=c(1,5,5.1,2), col.pts=4)
+cbind(coef.mean.full[c(11, 2:10, 21, 22, 12:20)], min.coef[c(11, 2:10, 21, 22, 12:20)], max.coef[c(11, 2:10, 21, 22, 12:20)])
+
+
+coef.mean.nocredit<-(coef(poi.glm.nocredit.set1)+coef(poi.glm.nocredit.set2)+coef(poi.glm.nocredit.set3)+coef(poi.glm.nocredit.set4)+coef(poi.glm.nocredit.set5))/5
+coef1.nocredit<-cbind(coef(poi.glm.nocredit.set1),coef(poi.glm.nocredit.set2),coef(poi.glm.nocredit.set3),coef(poi.glm.nocredit.set4),coef(poi.glm.nocredit.set5))
+min.coef.nocredit<-cbind(coef(poi.glm.nocredit.set1))
+min.coef.nocredit[,1]<-NaN
+min.coef.nocredit[c(1),]<-min(coef1.nocredit[c(1),])
+min.coef.nocredit[c(2),]<-min(coef1.nocredit[c(2),])
+min.coef.nocredit[c(3),]<-min(coef1.nocredit[c(3),])
+min.coef.nocredit[c(4),]<-min(coef1.nocredit[c(4),])
+min.coef.nocredit[c(5),]<-min(coef1.nocredit[c(5),])
+min.coef.nocredit[c(6),]<-min(coef1.nocredit[c(6),])
+min.coef.nocredit[c(7),]<-min(coef1.nocredit[c(7),])
+min.coef.nocredit[c(8),]<-min(coef1.nocredit[c(8),])
+min.coef.nocredit[c(9),]<-min(coef1.nocredit[c(9),])
+min.coef.nocredit[c(10),]<-min(coef1.nocredit[c(10),])
+min.coef.nocredit[c(11),]<-min(coef1.nocredit[c(11),])
+min.coef.nocredit[c(12),]<-min(coef1.nocredit[c(12),])
+min.coef.nocredit[c(13),]<-min(coef1.nocredit[c(13),])
+min.coef.nocredit[c(14),]<-min(coef1.nocredit[c(14),])
+min.coef.nocredit[c(15),]<-min(coef1.nocredit[c(15),])
+min.coef.nocredit[c(16),]<-min(coef1.nocredit[c(16),])
+min.coef.nocredit[c(17),]<-min(coef1.nocredit[c(17),])
+min.coef.nocredit[c(18),]<-min(coef1.nocredit[c(18),])
+min.coef.nocredit[c(19),]<-min(coef1.nocredit[c(19),])
+min.coef.nocredit[c(20),]<-min(coef1.nocredit[c(20),])
+min.coef.nocredit[c(21),]<-min(coef1.nocredit[c(21),])
+min.coef.nocredit[c(22),]<-min(coef1.nocredit[c(22),])
+
+
+max.coef.nocredit<-cbind(coef(poi.glm.nocredit.set1))
+max.coef.nocredit[,1]<-NaN
+max.coef.nocredit[c(1),]<-max(coef1.nocredit[c(1),])
+max.coef.nocredit[c(2),]<-max(coef1.nocredit[c(2),])
+max.coef.nocredit[c(3),]<-max(coef1.nocredit[c(3),])
+max.coef.nocredit[c(4),]<-max(coef1.nocredit[c(4),])
+max.coef.nocredit[c(5),]<-max(coef1.nocredit[c(5),])
+max.coef.nocredit[c(6),]<-max(coef1.nocredit[c(6),])
+max.coef.nocredit[c(7),]<-max(coef1.nocredit[c(7),])
+max.coef.nocredit[c(8),]<-max(coef1.nocredit[c(8),])
+max.coef.nocredit[c(9),]<-max(coef1.nocredit[c(9),])
+max.coef.nocredit[c(10),]<-max(coef1.nocredit[c(10),])
+max.coef.nocredit[c(11),]<-max(coef1.nocredit[c(11),])
+max.coef.nocredit[c(12),]<-max(coef1.nocredit[c(12),])
+max.coef.nocredit[c(13),]<-max(coef1.nocredit[c(13),])
+max.coef.nocredit[c(14),]<-max(coef1.nocredit[c(14),])
+max.coef.nocredit[c(15),]<-max(coef1.nocredit[c(15),])
+max.coef.nocredit[c(16),]<-max(coef1.nocredit[c(16),])
+max.coef.nocredit[c(17),]<-max(coef1.nocredit[c(17),])
+max.coef.nocredit[c(18),]<-max(coef1.nocredit[c(18),])
+max.coef.nocredit[c(19),]<-max(coef1.nocredit[c(19),])
+max.coef.nocredit[c(20),]<-max(coef1.nocredit[c(20),])
+max.coef.nocredit[c(21),]<-max(coef1.nocredit[c(21),])
+max.coef.nocredit[c(22),]<-max(coef1.nocredit[c(22),])
+
+
+#####plot the mean, min, and max coefficients######
+library(arm)
+coefplot.names.nocredit<-c("Public: no score", "Public: 634-681", "Public: 682-711", "Public: 712-737", "Public: 738-757", "Public: 758-779", "Public: 780-802", "Public: 803-826", "Public: 827-852 ", "Public: 853-997")
+coefplot(coef.mean.nocredit[c(11,2:10)],sd=0, lower.conf.bounds=min.coef.nocredit[c(11,2:10)], upper.conf.bounds=max.coef.nocredit[c(11,2:10)], varnames=coefplot.names.nocredit,cex.pts=1.5, main="(PD.2) Nocredit  Model GLM Coef after Cross-Validation", mar=c(1,5,5.1,2), col.pts=2, add=T, offset=0.4)
+cbind(coef.mean.nocredit[c(11,2:10)], min.coef.nocredit[c(11,2:10)], max.coef.nocredit[c(11,2:10)])
+
+
+pred.full1<-predict.glm(poi.glm.full.set1, newdata=pdtest1, type="response")
+pred.freq.full1<-pred.full1/pdtest1$Earned
+test.deviance.full1<-sum(pdtest1$Num_Claims*log(pred.full1)-pdtest1$Num_Claims)
+test.deviance.full1
+
+pred.full2<-predict.glm(poi.glm.full.set1, newdata=data.frame(pdtest2), type="response")
+pred.freq.full2<-pred.full2/pdtest2$Earned_Exposure
+test.deviance.full2<-sum(pdtest2$Num_Claims*log(pred.full2)-pdtest2$Num_Claims)
+test.deviance.full2
+
+pred.full3<-predict.glm(poi.glm.full.set3, newdata=data.frame(pdtest3), type="response")
+pred.freq.full3<-pred.full3/pdtest3$Earned_Exposure
+test.deviance.full3<-sum(pdtest3$Num_Claims*log(pred.full3)-pdtest3$Num_Claims)
+test.deviance.full3
+
+pred.full4<-predict.glm(poi.glm.full.set4, newdata=data.frame(pdtest4), type="response")
+pred.freq.full4<-pred.full4/pdtest4$Earned_Exposure
+test.deviance.full4<-sum(pdtest4$Num_Claims*log(pred.full4)-pdtest4$Num_Claims)
+test.deviance.full4
+
+pred.full5<-predict.glm(poi.glm.full.set5, newdata=data.frame(pdtest5), type="response")
+pred.freq.full5<-pred.full5/pdtest5$Earned_Exposure
+test.deviance.full5<-sum(pdtest5$Num_Claims*log(pred.full5)-pdtest5$Num_Claims)
+test.deviance.full5
+
+
+pred.nobothscore.set1<-predict.glm(poi.glm.nobothscore.set1, newdata=data.frame(pdtest1), type="response")
+pred.freq.nobothscore.set1<-pred.nobothscore.set1/pdtest1$Earned_Exposure
+test.deviance.nobothscore.set1<-sum(pdtest1$Num_Claims*log(pred.nothscore.set1)-pdtest1$Num_Claims)
+test.deviance.nobothscore.set1
+
+pred.nobothscore.set2<-predict.glm(poi.glm.nobothscore.set2, newdata=data.frame(pdtest2), type="response")
+pred.freq.nobothscore.set2<-pred.nobothscore.set2/pdtest2$Earned_Exposure
+test.deviance.nobothscore.set2<-sum(pdtest2$Num_Claims*log(pred.nothscore.set2)-pdtest2$Num_Claims)
+test.deviance.nobothscore.set2
+
+pred.nobothscore.set3<-predict.glm(poi.glm.nobothscore.set3, newdata=data.frame(pdtest3), type="response")
+pred.freq.nobothscore.set3<-pred.nobothscore.set3/pdtest3$Earned_Exposure
+test.deviance.nobothscore.set3<-sum(pdtest3$Num_Claims*log(pred.nothscore.set3)-pdtest3$Num_Claims)
+test.deviance.nobothscore.set3
+
+pred.nobothscore.set4<-predict.glm(poi.glm.nobothscore.set4, newdata=data.frame(pdtest4), type="response")
+pred.freq.nobothscore.set4<-pred.nobothscore.set4/pdtest4$Earned_Exposure
+test.deviance.nobothscore.set4<-sum(pdtest4$Num_Claims*log(pred.nothscore.set4)-pdtest4$Num_Claims)
+test.deviance.nobothscore.set4
+
+pred.nobothscore.set5<-predict.glm(poi.glm.nobothscore.set5, newdata=data.frame(pdtest5), type="response")
+pred.freq.nobothscore.set5<-pred.nobothscore.set5/pdtest5$Earned_Exposure
+test.deviance.nobothscore.set5<-sum(pdtest5$Num_Claims*log(pred.nothscore.set5)-pdtest5$Num_Claims)
+test.deviance.nobothscore.set5
+
+pred.nopublic.set1<-predict.glm(poi.glm.nopublic.set1, newdata=data.frame(pdtest1), type="response")
+pred.freq.nopublic.set1<-pred.nopublic.set1/pdtest1$Earned_Exposure
+test.deviance.nopublic.set1<-sum(pdtest1$Num_Claims*log(pred.freq.nopublic.set1)-pred.freq.nopublic.set1)
+test.deviance.nopublic.set1
+
+pred.nopublic.set2<-predict.glm(poi.glm.nopublic.set1, newdata=data.frame(pdtest2), type="response")
+pred.freq.nopublic.set2<-pred.nopublic.set2/pdtest2$Earned_Exposure
+test.deviance.nopublic.set2<-sum(pdtest2$Num_Claims*log(pred.freq.nopublic.set2)-pred.freq.nopublic.set2)
+test.deviance.nopublic.set2
+
+pred.nopublic.set3<-predict.glm(poi.glm.nopublic.set3, newdata=data.frame(pdtest3), type="response")
+pred.freq.nopublic.set3<-pred.nopublic.set3/pdtest3$Earned_Exposure
+test.deviance.nopublic.set3<-sum(pdtest3$Num_Claims*log(pred.freq.nopublic.set3)-pred.freq.nopublic.set3)
+test.deviance.nopublic.set3
+
+pred.nopublic.set4<-predict.glm(poi.glm.nopublic.set4, newdata=data.frame(pdtest4), type="response")
+pred.freq.nopublic.set4<-pred.nopublic.set4/pdtest4$Earned_Exposure
+test.deviance.nopublic.set4<-sum(pdtest4$Num_Claims*log(pred.freq.nopublic.set4)-pred.freq.nopublic.set4)
+test.deviance.nopublic.set4
+
+pred.nopublic.set5<-predict.glm(poi.glm.nopublic.set5, newdata=data.frame(pdtest5), type="response")
+pred.freq.nopublic.set5<-pred.nopublic.set5/pdtest5$Earned_Exposure
+test.deviance.nopublic.set5<-sum(pdtest5$Num_Claims*log(pred.freq.nopublic.set5)-pred.freq.nopublic.set5)
+test.deviance.nopublic.set5
+
+pred.nocredit.set1<-predict.glm(poi.glm.nocredit.set1, newdata=data.frame(pdtest1), type="response")
+pred.freq.nocredit.set1<-pred.nocredit.set1/pdtest1$Earned_Exposure
+test.deviance.nocredit.set1<-sum(pdtest1$Num_Claims*log(pred.freq.nocredit.set1)-pred.freq.nocredit.set1)
+test.deviance.nocredit.set1
+
+pred.nocredit.set2<-predict.glm(poi.glm.nocredit.set1, newdata=data.frame(pdtest2), type="response")
+pred.freq.nocredit.set2<-pred.nocredit.set2/pdtest2$Earned_Exposure
+test.deviance.nocredit.set2<-sum(pdtest2$Num_Claims*log(pred.freq.nocredit.set2)-pred.freq.nocredit.set2)
+test.deviance.nocredit.set2
+
+pred.nocredit.set3<-predict.glm(poi.glm.nocredit.set3, newdata=data.frame(pdtest3), type="response")
+pred.freq.nocredit.set3<-pred.nocredit.set3/pdtest3$Earned_Exposure
+test.deviance.nocredit.set3<-sum(pdtest3$Num_Claims*log(pred.freq.nocredit.set3)-pred.freq.nocredit.set3)
+test.deviance.nocredit.set3
+
+pred.nocredit.set4<-predict.glm(poi.glm.nocredit.set4, newdata=data.frame(pdtest4), type="response")
+pred.freq.nocredit.set4<-pred.nocredit.set4/pdtest4$Earned_Exposure
+test.deviance.nocredit.set4<-sum(pdtest4$Num_Claims*log(pred.freq.nocredit.set4)-pred.freq.nocredit.set4)
+test.deviance.nocredit.set4
+
+pred.nocredit.set5<-predict.glm(poi.glm.nocredit.set5, newdata=data.frame(pdtest5), type="response")
+pred.freq.nocredit.set5<-pred.nocredit.set5/pdtest5$Earned_Exposure
+test.deviance.nocredit.set5<-sum(pdtest5$Num_Claims*log(pred.freq.nocredit.set5)-pred.freq.nocredit.set5)
+test.deviance.nocredit.set5
+
+####predition plot####
+###predition plot####
+###full model###
+newpdtest1<-cbind(pdtest1, pred.freq.full1)
+pd1bin11<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="No Score"])
+pd1bin1<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="0-633"])
+pd1bin2<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="634-681"])
+pd1bin3<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="682-711"])
+pd1bin4<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="712-737"])
+pd1bin5<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="738-757"])
+pd1bin6<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="758-779"])
+pd1bin7<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="780-802"])
+pd1bin8<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="803-826"])
+pd1bin9<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="827-852"])
+pd1bin10<-mean(newpdtest1$pred.freq.full1[newpdtest1$Public_Score=="853-997"])
+list.pd1<-c(pd1bin11, pd1bin1,pd1bin2,pd1bin3,pd1bin4,pd1bin5,pd1bin6,pd1bin7,pd1bin8,pd1bin9,pd1bin10)
+
+newpdtest2<-cbind(pdtest2, pred.freq.full2)
+pd2bin11<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="No Score"])
+pd2bin1<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="0-633"])
+pd2bin2<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="634-681"])
+pd2bin3<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="682-711"])
+pd2bin4<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="712-737"])
+pd2bin5<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="738-757"])
+pd2bin6<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="758-779"])
+pd2bin7<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="780-802"])
+pd2bin8<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="803-826"])
+pd2bin9<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="827-852"])
+pd2bin10<-mean(newpdtest2$pred.freq.full2[newpdtest2$Public_Score=="853-997"])
+list.pd2<-c(pd2bin11, pd2bin1,pd2bin2,pd2bin3,pd2bin4,pd2bin5,pd2bin6,pd2bin7,pd2bin8,pd2bin9,pd2bin10)
+
+newpdtest3<-cbind(pdtest3, pred.freq.full3)
+pd3bin11<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="No Score"])
+pd3bin1<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="0-633"])
+pd3bin2<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="634-681"])
+pd3bin3<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="682-711"])
+pd3bin4<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="712-737"])
+pd3bin5<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="738-757"])
+pd3bin6<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="758-779"])
+pd3bin7<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="780-802"])
+pd3bin8<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="803-826"])
+pd3bin9<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="827-852"])
+pd3bin10<-mean(newpdtest3$pred.freq.full3[newpdtest3$Public_Score=="853-997"])
+list.pd3<-c(pd3bin11, pd3bin1,pd3bin2,pd3bin3,pd3bin4,pd3bin5,pd3bin6,pd3bin7,pd3bin8,pd3bin9,pd3bin10)
+
+newpdtest4<-cbind(pdtest4, pred.freq.full4)
+pd4bin11<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="No Score"])
+pd4bin1<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="0-633"])
+pd4bin2<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="634-681"])
+pd4bin3<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="682-711"])
+pd4bin4<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="712-737"])
+pd4bin5<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="738-757"])
+pd4bin6<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="758-779"])
+pd4bin7<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="780-802"])
+pd4bin8<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="803-826"])
+pd4bin9<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="827-852"])
+pd4bin10<-mean(newpdtest4$pred.freq.full4[newpdtest4$Public_Score=="853-997"])
+list.pd4<-c(pd4bin11, pd4bin1,pd4bin2,pd4bin3,pd4bin4,pd4bin5,pd4bin6,pd4bin7,pd4bin8,pd4bin9,pd4bin10)
+
+newpdtest5<-cbind(pdtest5, pred.freq.full5)
+pd5bin11<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="No Score"])
+pd5bin1<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="0-633"])
+pd5bin2<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="634-681"])
+pd5bin3<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="682-711"])
+pd5bin4<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="712-737"])
+pd5bin5<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="738-757"])
+pd5bin6<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="758-779"])
+pd5bin7<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="780-802"])
+pd5bin8<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="803-826"])
+pd5bin9<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="827-852"])
+pd5bin10<-mean(newpdtest5$pred.freq.full5[newpdtest5$Public_Score=="853-997"])
+list.pd5<-c(pd5bin11, pd5bin1,pd5bin2,pd5bin3,pd5bin4,pd5bin5,pd5bin6,pd5bin7,pd5bin8,pd5bin9,pd5bin10)
+
+pd.mean.full.bin11<-mean(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.mean.full.bin1<-mean(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.mean.full.bin2<-mean(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.mean.full.bin3<-mean(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.mean.full.bin4<-mean(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.mean.full.bin5<-mean(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.mean.full.bin6<-mean(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.mean.full.bin7<-mean(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.mean.full.bin8<-mean(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.mean.full.bin9<-mean(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.mean.full.bin10<-mean(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.mean.full<-c(pd.mean.full.bin11, pd.mean.full.bin1,pd.mean.full.bin2,pd.mean.full.bin3,pd.mean.full.bin4,pd.mean.full.bin5,pd.mean.full.bin6,pd.mean.full.bin7,pd.mean.full.bin8,pd.mean.full.bin9,pd.mean.full.bin10)
+
+pd.min.full.bin11<-min(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.min.full.bin1<-min(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.min.full.bin2<-min(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.min.full.bin3<-min(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.min.full.bin4<-min(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.min.full.bin5<-min(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.min.full.bin6<-min(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.min.full.bin7<-min(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.min.full.bin8<-min(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.min.full.bin9<-min(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.min.full.bin10<-min(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.min.full<-c(pd.min.full.bin11, pd.min.full.bin1,pd.min.full.bin2,pd.min.full.bin3,pd.min.full.bin4,pd.min.full.bin5,pd.min.full.bin6,pd.min.full.bin7,pd.min.full.bin8,pd.min.full.bin9,pd.min.full.bin10)
+
+pd.max.full.bin11<-max(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.max.full.bin1<-max(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.max.full.bin2<-max(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.max.full.bin3<-max(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.max.full.bin4<-max(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.max.full.bin5<-max(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.max.full.bin6<-max(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.max.full.bin7<-max(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.max.full.bin8<-max(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.max.full.bin9<-max(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.max.full.bin10<-max(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.max.full<-c(pd.max.full.bin11, pd.max.full.bin1,pd.max.full.bin2,pd.max.full.bin3,pd.max.full.bin4,pd.max.full.bin5,pd.max.full.bin6,pd.max.full.bin7,pd.max.full.bin8,pd.max.full.bin9,pd.max.full.bin10)
+
+lines(pd.list.mean.full,type="o", xaxt="n", cex=1, lwd=3,col=2)
+lines(pd.list.max.full, lty=2, col=4, lwd=3)
+lines(pd.list.min.full, lty=2, col=4 ,lwd=3)
+
+######model with only credit score####
+newpdtest1<-cbind(pdtest1, pred.freq.nopublic.set1)
+pd1bin11<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="No Score" &newpdtest1$Year=="2012"])
+pd1bin1<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="0-633"])
+pd1bin2<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="634-681"])
+pd1bin3<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="682-711"])
+pd1bin4<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="712-737"])
+pd1bin5<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="738-757"])
+pd1bin6<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="758-779"])
+pd1bin7<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="780-802"])
+pd1bin8<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="803-826"])
+pd1bin9<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="827-852"])
+pd1bin10<-mean(newpdtest1$pred.freq.nopublic.set1[newpdtest1$Public_Score=="853-997"])
+list.pd1<-c(pd1bin11, pd1bin1,pd1bin2,pd1bin3,pd1bin4,pd1bin5,pd1bin6,pd1bin7,pd1bin8,pd1bin9,pd1bin10)
+
+newpdtest2<-cbind(pdtest2, pred.freq.nopublic.set2)
+pd2bin11<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="No Score"])
+pd2bin1<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="0-633"])
+pd2bin2<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="634-681"])
+pd2bin3<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="682-711"])
+pd2bin4<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="712-737"])
+pd2bin5<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="738-757"])
+pd2bin6<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="758-779"])
+pd2bin7<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="780-802"])
+pd2bin8<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="803-826"])
+pd2bin9<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="827-852"])
+pd2bin10<-mean(newpdtest2$pred.freq.nopublic.set2[newpdtest2$Public_Score=="853-997"])
+list.pd2<-c(pd2bin11, pd2bin1,pd2bin2,pd2bin3,pd2bin4,pd2bin5,pd2bin6,pd2bin7,pd2bin8,pd2bin9,pd2bin10)
+
+newpdtest3<-cbind(pdtest3, pred.freq.nopublic.set3)
+pd3bin11<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="No Score"])
+pd3bin1<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="0-633"])
+pd3bin2<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="634-681"])
+pd3bin3<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="682-711"])
+pd3bin4<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="712-737"])
+pd3bin5<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="738-757"])
+pd3bin6<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="758-779"])
+pd3bin7<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="780-802"])
+pd3bin8<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="803-826"])
+pd3bin9<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="827-852"])
+pd3bin10<-mean(newpdtest3$pred.freq.nopublic.set3[newpdtest3$Public_Score=="853-997"])
+list.pd3<-c(pd3bin11, pd3bin1,pd3bin2,pd3bin3,pd3bin4,pd3bin5,pd3bin6,pd3bin7,pd3bin8,pd3bin9,pd3bin10)
+
+newpdtest4<-cbind(pdtest4, pred.freq.nopublic.set4)
+pd4bin11<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="No Score"])
+pd4bin1<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="0-633"])
+pd4bin2<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="634-681"])
+pd4bin3<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="682-711"])
+pd4bin4<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="712-737"])
+pd4bin5<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="738-757"])
+pd4bin6<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="758-779"])
+pd4bin7<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="780-802"])
+pd4bin8<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="803-826"])
+pd4bin9<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="827-852"])
+pd4bin10<-mean(newpdtest4$pred.freq.nopublic.set4[newpdtest4$Public_Score=="853-997"])
+list.pd4<-c(pd4bin11, pd4bin1,pd4bin2,pd4bin3,pd4bin4,pd4bin5,pd4bin6,pd4bin7,pd4bin8,pd4bin9,pd4bin10)
+
+newpdtest5<-cbind(pdtest5, pred.freq.nopublic.set5)
+pd5bin11<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="No Score"])
+pd5bin1<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="0-633"])
+pd5bin2<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="634-681"])
+pd5bin3<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="682-711"])
+pd5bin4<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="712-737"])
+pd5bin5<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="738-757"])
+pd5bin6<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="758-779"])
+pd5bin7<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="780-802"])
+pd5bin8<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="803-826"])
+pd5bin9<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="827-852"])
+pd5bin10<-mean(newpdtest5$pred.freq.nopublic.set5[newpdtest5$Public_Score=="853-997"])
+list.pd5<-c(pd5bin11, pd5bin1,pd5bin2,pd5bin3,pd5bin4,pd5bin5,pd5bin6,pd5bin7,pd5bin8,pd5bin9,pd5bin10)
+
+pd.mean.nopublic.bin11<-mean(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.mean.nopublic.bin1<-mean(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.mean.nopublic.bin2<-mean(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.mean.nopublic.bin3<-mean(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.mean.nopublic.bin4<-mean(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.mean.nopublic.bin5<-mean(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.mean.nopublic.bin6<-mean(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.mean.nopublic.bin7<-mean(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.mean.nopublic.bin8<-mean(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.mean.nopublic.bin9<-mean(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.mean.nopublic.bin10<-mean(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.mean.nopublic<-c(pd.mean.nopublic.bin11, pd.mean.nopublic.bin1,pd.mean.nopublic.bin2,pd.mean.nopublic.bin3,pd.mean.nopublic.bin4,pd.mean.nopublic.bin5,pd.mean.nopublic.bin6,pd.mean.nopublic.bin7,pd.mean.nopublic.bin8,pd.mean.nopublic.bin9,pd.mean.nopublic.bin10)
+
+pd.min.nopublic.bin11<-min(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.min.nopublic.bin1<-min(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.min.nopublic.bin2<-min(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.min.nopublic.bin3<-min(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.min.nopublic.bin4<-min(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.min.nopublic.bin5<-min(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.min.nopublic.bin6<-min(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.min.nopublic.bin7<-min(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.min.nopublic.bin8<-min(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.min.nopublic.bin9<-min(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.min.nopublic.bin10<-min(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.min.nopublic<-c(pd.min.nopublic.bin11, pd.min.nopublic.bin1,pd.min.nopublic.bin2,pd.min.nopublic.bin3,pd.min.nopublic.bin4,pd.min.nopublic.bin5,pd.min.nopublic.bin6,pd.min.nopublic.bin7,pd.min.nopublic.bin8,pd.min.nopublic.bin9,pd.min.nopublic.bin10)
+
+pd.max.nopublic.bin11<-max(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.max.nopublic.bin1<-max(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.max.nopublic.bin2<-max(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.max.nopublic.bin3<-max(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.max.nopublic.bin4<-max(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.max.nopublic.bin5<-max(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.max.nopublic.bin6<-max(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.max.nopublic.bin7<-max(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.max.nopublic.bin8<-max(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.max.nopublic.bin9<-max(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.max.nopublic.bin10<-max(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.max.nopublic<-c(pd.max.nopublic.bin11, pd.max.nopublic.bin1,pd.max.nopublic.bin2,pd.max.nopublic.bin3,pd.max.nopublic.bin4,pd.max.nopublic.bin5,pd.max.nopublic.bin6,pd.max.nopublic.bin7,pd.max.nopublic.bin8,pd.max.nopublic.bin9,pd.max.nopublic.bin10)
+
+lines(pd.list.mean.nopublic,type="o", xaxt="n", cex=1, lwd=3,col=2)
+lines(pd.list.max.nopublic, lty=2, col=4, lwd=3)
+lines(pd.list.min.nopublic, lty=2, col=4 ,lwd=3)
+
+
+###no credit model####
+newpdtest1<-cbind(pdtest1, pred.freq.nocredit.set1)
+pd1bin11<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="No Score"])
+pd1bin1<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="0-633"])
+pd1bin2<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="634-681"])
+pd1bin3<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="682-711"])
+pd1bin4<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="712-737"])
+pd1bin5<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="738-757"])
+pd1bin6<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="758-779"])
+pd1bin7<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="780-802"])
+pd1bin8<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="803-826"])
+pd1bin9<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="827-852"])
+pd1bin10<-mean(newpdtest1$pred.freq.nocredit.set1[newpdtest1$Public_Score=="853-997"])
+list.pd1<-c(pd1bin11, pd1bin1,pd1bin2,pd1bin3,pd1bin4,pd1bin5,pd1bin6,pd1bin7,pd1bin8,pd1bin9,pd1bin10)
+
+newpdtest2<-cbind(pdtest2, pred.freq.nocredit.set2)
+pd2bin11<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="No Score"])
+pd2bin1<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="0-633"])
+pd2bin2<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="634-681"])
+pd2bin3<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="682-711"])
+pd2bin4<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="712-737"])
+pd2bin5<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="738-757"])
+pd2bin6<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="758-779"])
+pd2bin7<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="780-802"])
+pd2bin8<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="803-826"])
+pd2bin9<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="827-852"])
+pd2bin10<-mean(newpdtest2$pred.freq.nocredit.set2[newpdtest2$Public_Score=="853-997"])
+list.pd2<-c(pd2bin11, pd2bin1,pd2bin2,pd2bin3,pd2bin4,pd2bin5,pd2bin6,pd2bin7,pd2bin8,pd2bin9,pd2bin10)
+
+newpdtest3<-cbind(pdtest3, pred.freq.nocredit.set3)
+pd3bin11<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="No Score"])
+pd3bin1<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="0-633"])
+pd3bin2<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="634-681"])
+pd3bin3<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="682-711"])
+pd3bin4<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="712-737"])
+pd3bin5<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="738-757"])
+pd3bin6<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="758-779"])
+pd3bin7<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="780-802"])
+pd3bin8<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="803-826"])
+pd3bin9<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="827-852"])
+pd3bin10<-mean(newpdtest3$pred.freq.nocredit.set3[newpdtest3$Public_Score=="853-997"])
+list.pd3<-c(pd3bin11, pd3bin1,pd3bin2,pd3bin3,pd3bin4,pd3bin5,pd3bin6,pd3bin7,pd3bin8,pd3bin9,pd3bin10)
+
+newpdtest4<-cbind(pdtest4, pred.freq.nocredit.set4)
+pd4bin11<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="No Score"])
+pd4bin1<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="0-633"])
+pd4bin2<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="634-681"])
+pd4bin3<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="682-711"])
+pd4bin4<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="712-737"])
+pd4bin5<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="738-757"])
+pd4bin6<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="758-779"])
+pd4bin7<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="780-802"])
+pd4bin8<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="803-826"])
+pd4bin9<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="827-852"])
+pd4bin10<-mean(newpdtest4$pred.freq.nocredit.set4[newpdtest4$Public_Score=="853-997"])
+list.pd4<-c(pd4bin11, pd4bin1,pd4bin2,pd4bin3,pd4bin4,pd4bin5,pd4bin6,pd4bin7,pd4bin8,pd4bin9,pd4bin10)
+
+newpdtest5<-cbind(pdtest5, pred.freq.nocredit.set5)
+pd5bin11<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="No Score"])
+pd5bin1<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="0-633"])
+pd5bin2<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="634-681"])
+pd5bin3<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="682-711"])
+pd5bin4<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="712-737"])
+pd5bin5<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="738-757"])
+pd5bin6<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="758-779"])
+pd5bin7<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="780-802"])
+pd5bin8<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="803-826"])
+pd5bin9<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="827-852"])
+pd5bin10<-mean(newpdtest5$pred.freq.nocredit.set5[newpdtest5$Public_Score=="853-997"])
+list.pd5<-c(pd5bin11, pd5bin1,pd5bin2,pd5bin3,pd5bin4,pd5bin5,pd5bin6,pd5bin7,pd5bin8,pd5bin9,pd5bin10)
+
+pd.mean.nocredit.bin11<-mean(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.mean.nocredit.bin1<-mean(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.mean.nocredit.bin2<-mean(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.mean.nocredit.bin3<-mean(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.mean.nocredit.bin4<-mean(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.mean.nocredit.bin5<-mean(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.mean.nocredit.bin6<-mean(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.mean.nocredit.bin7<-mean(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.mean.nocredit.bin8<-mean(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.mean.nocredit.bin9<-mean(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.mean.nocredit.bin10<-mean(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.mean.nocredit<-c(pd.mean.nocredit.bin11, pd.mean.nocredit.bin1,pd.mean.nocredit.bin2,pd.mean.nocredit.bin3,pd.mean.nocredit.bin4,pd.mean.nocredit.bin5,pd.mean.nocredit.bin6,pd.mean.nocredit.bin7,pd.mean.nocredit.bin8,pd.mean.nocredit.bin9,pd.mean.nocredit.bin10)
+
+pd.min.nocredit.bin11<-min(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.min.nocredit.bin1<-min(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.min.nocredit.bin2<-min(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.min.nocredit.bin3<-min(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.min.nocredit.bin4<-min(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.min.nocredit.bin5<-min(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.min.nocredit.bin6<-min(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.min.nocredit.bin7<-min(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.min.nocredit.bin8<-min(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.min.nocredit.bin9<-min(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.min.nocredit.bin10<-min(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.min.nocredit<-c(pd.min.nocredit.bin11, pd.min.nocredit.bin1,pd.min.nocredit.bin2,pd.min.nocredit.bin3,pd.min.nocredit.bin4,pd.min.nocredit.bin5,pd.min.nocredit.bin6,pd.min.nocredit.bin7,pd.min.nocredit.bin8,pd.min.nocredit.bin9,pd.min.nocredit.bin10)
+
+pd.max.nocredit.bin11<-max(pd5bin11,pd4bin11,pd3bin11,pd2bin11,pd1bin11)
+pd.max.nocredit.bin1<-max(pd5bin1,pd4bin1,pd3bin1,pd2bin1,pd1bin1)
+pd.max.nocredit.bin2<-max(pd5bin2,pd4bin2,pd3bin2,pd2bin2,pd1bin2)
+pd.max.nocredit.bin3<-max(pd5bin3,pd4bin3,pd3bin3,pd2bin3,pd1bin3)
+pd.max.nocredit.bin4<-max(pd5bin4,pd4bin4,pd3bin4,pd2bin4,pd1bin4)
+pd.max.nocredit.bin5<-max(pd5bin5,pd4bin5,pd3bin5,pd2bin5,pd1bin5)
+pd.max.nocredit.bin6<-max(pd5bin6,pd4bin6,pd3bin6,pd2bin6,pd1bin6)
+pd.max.nocredit.bin7<-max(pd5bin7,pd4bin7,pd3bin7,pd2bin7,pd1bin7)
+pd.max.nocredit.bin8<-max(pd5bin8,pd4bin8,pd3bin8,pd2bin8,pd1bin8)
+pd.max.nocredit.bin9<-max(pd5bin9,pd4bin9,pd3bin9,pd2bin9,pd1bin9)
+pd.max.nocredit.bin10<-max(pd5bin10,pd4bin10,pd3bin10,pd2bin10,pd1bin10)
+pd.list.max.nocredit<-c(pd.max.nocredit.bin11, pd.max.nocredit.bin1,pd.max.nocredit.bin2,pd.max.nocredit.bin3,pd.max.nocredit.bin4,pd.max.nocredit.bin5,pd.max.nocredit.bin6,pd.max.nocredit.bin7,pd.max.nocredit.bin8,pd.max.nocredit.bin9,pd.max.nocredit.bin10)
+
+lines(pd.list.mean.nocredit ,type="o", xaxt="n", cex=1, lwd=3,col=2)
+lines(pd.list.max.nocredit, lty=2, col=4, lwd=3)
+lines(pd.list.min.nocredit, lty=2, col=4 ,lwd=3)
+
+
+######plot prediction against credit score#####
+
+
+
+######GAM#######
+###flag out 999 score####
+###set1###
+pdtrain1.nopublic<-0
+##pdtrain1$Public_Score[pdtrain1$Public_Score==999]
+pdtrain1.forgam<-cbind(pdtrain1, pdtrain1.nopublic)
+pdtrain1.forgam$pdtrain1.nopublic=as.numeric(pdtrain1.forgam$Public_Score==999)
+pdtrain1.forgam$Public_Score[pdtrain1.forgam$Public_Score==999]=0
+pdtrain1.forgam$pdtrain1.nopublic<-factor(pdtrain1.forgam$pdtrain1.nopublic)
+
+pdtrain1.nopublic<-0
+##pdtest1$Public_Score[pdtest1$Public_Score==999]
+pdtest1.forgam<-cbind(pdtest1, pdtrain1.nopublic,offset(log(pdtest1$Earned_Exposure)))
+pdtest1.forgam$pdtrain1.nopublic=as.numeric(pdtest1.forgam$Public_Score==999)
+pdtest1.forgam$Public_Score[pdtest1.forgam$Public_Score==999]=0
+pdtest1.forgam$pdtrain1.nopublic<-factor(pdtest1.forgam$pdtrain1.nopublic)
+
+
+##set2##
+pdtrain2.nopublic<-0
+##pdtrain2$Public_Score[pdtrain2$Public_Score==999]
+pdtrain2.forgam<-cbind(pdtrain2, pdtrain2.nopublic)
+pdtrain2.forgam$pdtrain2.nopublic=as.numeric(pdtrain2.forgam$Public_Score==999)
+pdtrain2.forgam$Public_Score[pdtrain2.forgam$Public_Score==999]=0
+pdtrain2.forgam$pdtrain2.nopublic<-factor(pdtrain2.forgam$pdtrain2.nopublic)
+
+pdtrain2.nopublic<-0
+##pdtest2$Public_Score[pdtest2$Public_Score==999]
+pdtest2.forgam<-cbind(pdtest2, pdtrain2.nopublic)
+pdtest2.forgam$pdtrain2.nopublic=as.numeric(pdtest2.forgam$Public_Score==999)
+pdtest2.forgam$Public_Score[pdtest2.forgam$Public_Score==999]=0
+pdtest2.forgam$pdtrain2.nopublic<-factor(pdtest2.forgam$pdtrain2.nopublic)
+
+###set3####
+pdtrain3.nopublic<-0
+##pdtrain3$Public_Score[pdtrain3$Public_Score==999]
+pdtrain3.forgam<-cbind(pdtrain3, pdtrain3.nopublic)
+pdtrain3.forgam$pdtrain3.nopublic=as.numeric(pdtrain3.forgam$Public_Score==999)
+pdtrain3.forgam$Public_Score[pdtrain3.forgam$Public_Score==999]=0
+pdtrain3.forgam$pdtrain3.nopublic<-factor(pdtrain3.forgam$pdtrain3.nopublic)
+
+pdtrain3.nopublic<-0
+##pdtest3$Public_Score[pdtest3$Public_Score==999]
+pdtest3.forgam<-cbind(pdtest3, pdtrain3.nopublic)
+pdtest3.forgam$pdtrain3.nopublic=as.numeric(pdtest3.forgam$Public_Score==999)
+pdtest3.forgam$Public_Score[pdtest3.forgam$Public_Score==999]=0
+pdtest3.forgam$pdtrain3.nopublic<-factor(pdtest3.forgam$pdtrain3.nopublic)
+
+###set 4####
+pdtrain4.nopublic<-0
+##pdtrain4$Public_Score[pdtrain4$Public_Score==999]
+pdtrain4.forgam<-cbind(pdtrain4, pdtrain4.nopublic)
+pdtrain4.forgam$pdtrain4.nopublic=as.numeric(pdtrain4.forgam$Public_Score==999)
+pdtrain4.forgam$Public_Score[pdtrain4.forgam$Public_Score==999]=0
+pdtrain4.forgam$pdtrain4.nopublic<-factor(pdtrain4.forgam$pdtrain4.nopublic)
+
+pdtrain4.nopublic<-0
+##pdtest4$Public_Score[pdtest4$Public_Score==999]
+pdtest4.forgam<-cbind(pdtest4, pdtrain4.nopublic)
+pdtest4.forgam$pdtrain4.nopublic=as.numeric(pdtest4.forgam$Public_Score==999)
+pdtest4.forgam$Public_Score[pdtest4.forgam$Public_Score==999]=0
+pdtest4.forgam$pdtrain4.nopublic<-factor(pdtest4.forgam$pdtrain4.nopublic)
+
+###set 5####
+pdtrain5.nopublic<-0
+##pdtrain5$Public_Score[pdtrain5$Public_Score==999]
+pdtrain5.forgam<-cbind(pdtrain5, pdtrain5.nopublic)
+pdtrain5.forgam$pdtrain5.nopublic=as.numeric(pdtrain5.forgam$Public_Score==999)
+pdtrain5.forgam$Public_Score[pdtrain5.forgam$Public_Score==999]=0
+pdtrain5.forgam$pdtrain5.nopublic<-factor(pdtrain5.forgam$pdtrain5.nopublic)
+
+pdtrain5.nopublic<-0
+##pdtest5$Public_Score[pdtest5$Public_Score==999]
+pdtest5.forgam<-cbind(pdtest5, pdtrain5.nopublic)
+pdtest5.forgam$pdtrain5.nopublic=as.numeric(pdtest5.forgam$Public_Score==999)
+pdtest5.forgam$Public_Score[pdtest5.forgam$Public_Score==999]=0
+pdtest5.forgam$pdtrain5.nopublic<-factor(pdtest5.forgam$pdtrain5.nopublic)
+
+
+
+
+library(gam)
+gam.only.public.pdtrain1<-gam(Num_Claims~s(Public_Score,5)+pdtrain1.nopublic+Year+PD_Limit+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure), family=poisson(link=log), data=pdtrain1.forgam)
+
+gam.only.public.pdtrain2<-gam(pmin(1,Num_Claims)~s(Public_Score,4)+pdtrain2.nopublic+Year+PD_Limit+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=NULL, weights=pdtrain2.forgam$Earned_Exposure, family=binomial(link=logit), data=pdtrain2.forgam)
+
+gam.only.public.pdtrain3<-gam(pmin(1,Num_Claims)~s(Public_Score,4)+pdtrain3.nopublic+Year+PD_Limit+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=NULL, weights=pdtrain3.forgam$Earned_Exposure, family=binomial(link=logit), data=pdtrain3.forgam)
+
+gam.only.public.pdtrain4<-gam(pmin(1,Num_Claims)~s(Public_Score,4)+pdtrain4.nopublic+Year+PD_Limit+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=NULL, weights=pdtrain4.forgam$Earned_Exposure, family=binomial(link=logit), data=pdtrain4.forgam)
+
+gam.only.public.pdtrain5<-gam(pmin(1,Num_Claims)~s(Public_Score,4)+pdtrain5.nopublic+Year+PD_Limit+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=NULL, weights=pdtrain5.forgam$Earned_Exposure, family=binomial(link=logit), data=pdtrain5.forgam)
+
+
+pred.gam.pdtest1<-predict.gam(gam.only.public.pdtrain1, newdata=pdtest1.forgam, type="response")
+test.deviance.gam.pdtest1<-sum(pdtest1.forgam$Num_Claims*log(pred.gam.pdtest1)+(1-pdtest1.forgam$Num_Claims)*log(1-pred.gam.pdtest1))
+test.deviance.gam.pdtest1
+
+pred.gam.pdtest2<-predict.gam(gam.only.public.pdtrain2, newdata=pdtest2.forgam, type="response")
+test.deviance.gam.pdtest2<-sum(pdtest2.forgam$Num_Claims*log(pred.gam.pdtest2)+(1-pdtest2.forgam$Num_Claims)*log(1-pred.gam.pdtest2))
+test.deviance.gam.pdtest2
+
+pred.gam.pdtest3<-predict.gam(gam.only.public.pdtrain3, newdata=pdtest3.forgam, type="response")
+test.deviance.gam.pdtest3<-sum(pdtest3.forgam$Num_Claims*log(pred.gam.pdtest3)+(1-pdtest3.forgam$Num_Claims)*log(1-pred.gam.pdtest3))
+test.deviance.gam.pdtest3
+
+pred.gam.pdtest4<-predict.gam(gam.only.public.pdtrain4, newdata=pdtest4.forgam, type="response")
+test.deviance.gam.pdtest4<-sum(pdtest4.forgam$Num_Claims*log(pred.gam.pdtest4)+(1-pdtest4.forgam$Num_Claims)*log(1-pred.gam.pdtest4))
+test.deviance.gam.pdtest4
+
+pred.gam.pdtest5<-predict.gam(gam.only.public.pdtrain5, newdata=pdtest5.forgam, type="response")
+test.deviance.gam.pdtest5<-sum(pdtest5.forgam$Num_Claims*log(pred.gam.pdtest5)+(1-pdtest5.forgam$Num_Claims)*log(1-pred.gam.pdtest5))
+test.deviance.gam.pdtest5
+
+str(pdtest1.forgam)
+str(pdtest2.forgam)
+str(pdtest3.forgam)
+str(pdtest4.forgam)
+str(pdtest5.forgam)
+####above are the structures of testing set, this is useful for figuring out df for chi-sq test of test deviance###
+
+
+###GAM###
+###############################################
+######GAM##################
+###flag out 999 score####
+###set1###
+colltrain1.nopublic<-0
+##colltrain1$Public_Score[colltrain1$Public_Score==999]
+colltrain1.forgam<-cbind(colltrain1, colltrain1.nopublic)
+colltrain1.forgam$colltrain1.nopublic=as.numeric(colltrain1.forgam$Public_Score==999)
+colltrain1.forgam$Public_Score[colltrain1.forgam$Public_Score==999]=0
+colltrain1.forgam$colltrain1.nopublic<-factor(colltrain1.forgam$colltrain1.nopublic)
+
+colltrain1.nopublic<-0
+##colltest1$Public_Score[colltest1$Public_Score==999]
+colltest1.forgam<-cbind(colltest1, colltrain1.nopublic)
+colltest1.forgam$colltrain1.nopublic=as.numeric(colltest1.forgam$Public_Score==999)
+colltest1.forgam$Public_Score[colltest1.forgam$Public_Score==999]=0
+colltest1.forgam$colltrain1.nopublic<-factor(colltest1.forgam$colltrain1.nopublic)
+
+
+##set2##
+colltrain2.nopublic<-0
+##colltrain2$Public_Score[colltrain2$Public_Score==999]
+colltrain2.forgam<-cbind(colltrain2, colltrain2.nopublic)
+colltrain2.forgam$colltrain2.nopublic=as.numeric(colltrain2.forgam$Public_Score==999)
+colltrain2.forgam$Public_Score[colltrain2.forgam$Public_Score==999]=0
+colltrain2.forgam$colltrain2.nopublic<-factor(colltrain2.forgam$colltrain2.nopublic)
+
+colltrain2.nopublic<-0
+##colltest2$Public_Score[colltest2$Public_Score==999]
+colltest2.forgam<-cbind(colltest2, colltrain2.nopublic)
+colltest2.forgam$colltrain2.nopublic=as.numeric(colltest2.forgam$Public_Score==999)
+colltest2.forgam$Public_Score[colltest2.forgam$Public_Score==999]=0
+colltest2.forgam$colltrain2.nopublic<-factor(colltest2.forgam$colltrain2.nopublic)
+
+###set3####
+colltrain3.nopublic<-0
+##colltrain3$Public_Score[colltrain3$Public_Score==999]
+colltrain3.forgam<-cbind(colltrain3, colltrain3.nopublic)
+colltrain3.forgam$colltrain3.nopublic=as.numeric(colltrain3.forgam$Public_Score==999)
+colltrain3.forgam$Public_Score[colltrain3.forgam$Public_Score==999]=0
+colltrain3.forgam$colltrain3.nopublic<-factor(colltrain3.forgam$colltrain3.nopublic)
+
+colltrain3.nopublic<-0
+##colltest3$Public_Score[colltest3$Public_Score==999]
+colltest3.forgam<-cbind(colltest3, colltrain3.nopublic)
+colltest3.forgam$colltrain3.nopublic=as.numeric(colltest3.forgam$Public_Score==999)
+colltest3.forgam$Public_Score[colltest3.forgam$Public_Score==999]=0
+colltest3.forgam$colltrain3.nopublic<-factor(colltest3.forgam$colltrain3.nopublic)
+
+###set 4####
+colltrain4.nopublic<-0
+##colltrain4$Public_Score[colltrain4$Public_Score==999]
+colltrain4.forgam<-cbind(colltrain4, colltrain4.nopublic)
+colltrain4.forgam$colltrain4.nopublic=as.numeric(colltrain4.forgam$Public_Score==999)
+colltrain4.forgam$Public_Score[colltrain4.forgam$Public_Score==999]=0
+colltrain4.forgam$colltrain4.nopublic<-factor(colltrain4.forgam$colltrain4.nopublic)
+
+colltrain4.nopublic<-0
+##colltest4$Public_Score[colltest4$Public_Score==999]
+colltest4.forgam<-cbind(colltest4, colltrain4.nopublic)
+colltest4.forgam$colltrain4.nopublic=as.numeric(colltest4.forgam$Public_Score==999)
+colltest4.forgam$Public_Score[colltest4.forgam$Public_Score==999]=0
+colltest4.forgam$colltrain4.nopublic<-factor(colltest4.forgam$colltrain4.nopublic)
+
+###set 5####
+colltrain5.nopublic<-0
+##colltrain5$Public_Score[colltrain5$Public_Score==999]
+colltrain5.forgam<-cbind(colltrain5, colltrain5.nopublic)
+colltrain5.forgam$colltrain5.nopublic=as.numeric(colltrain5.forgam$Public_Score==999)
+colltrain5.forgam$Public_Score[colltrain5.forgam$Public_Score==999]=0
+colltrain5.forgam$colltrain5.nopublic<-factor(colltrain5.forgam$colltrain5.nopublic)
+
+colltrain5.nopublic<-0
+##colltest5$Public_Score[colltest5$Public_Score==999]
+colltest5.forgam<-cbind(colltest5, colltrain5.nopublic)
+colltest5.forgam$colltrain5.nopublic=as.numeric(colltest5.forgam$Public_Score==999)
+colltest5.forgam$Public_Score[colltest5.forgam$Public_Score==999]=0
+colltest5.forgam$colltrain5.nopublic<-factor(colltest5.forgam$colltrain5.nopublic)
+
+
+
+#spline function
+library(gam)
+gam.only.public.colltrain1<-gam(Num_Claims~s(Public_Score,4)+colltrain1.nopublic+Coll_Ded+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+CAR_Density+Vehicle_Age+Veh_Type_Symbol+offset(log(Earned_Exposure)), family=poisson(link=log), data=colltrain1.forgam)
+
+gam.only.public.colltrain2<-gam(Num_Claims~s(Public_Score,4)+colltrain2.nopublic+Coll_Ded+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+CAR_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure), family=poisson(link=log), data=colltrain2.forgam)
+
+gam.only.public.colltrain3<-gam(Num_Claims~s(Public_Score,4)+colltrain3.nopublic+Coll_Ded+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+CAR_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure), family=poisson(link=log), data=colltrain3.forgam)
+
+gam.only.public.colltrain4<-gam(Num_Claims~s(Public_Score,4)+colltrain4.nopublic+Coll_Ded+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+CAR_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure), family=poisson(link=log), data=colltrain4.forgam)
+
+gam.only.public.colltrain5<-gam(Num_Claims~s(Public_Score,4)+colltrain5.nopublic+Coll_Ded+Year+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+CAR_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure), family=poisson(link=log), data=colltrain5.forgam)
+
+pred.gam.colltest1<-predict.gam(gam.only.public.colltrain1, newdata=colltest1.forgam, type="response")
+pred.gam.freq.colltest1<-pred.gam.colltest1/colltest1.forgam$Earned_Exposure
+test.deviance.gam.colltest1<-sum(colltest1.forgam$Num_Claims*log(pred.gam.freq.colltest1)-pred.gam.freq.colltest1)
+test.deviance.gam.colltest1
+
+pred.gam.colltest2<-predict.gam(gam.only.public.colltrain2, newdata=colltest2.forgam, type="response")
+pred.gam.freq.colltest2<-pred.gam.colltest2/colltest2.forgam$Earned_Exposure
+test.deviance.gam.colltest2<-sum(colltest2.forgam$Num_Claims*log(pred.gam.freq.colltest2)-pred.gam.freq.colltest2)
+test.deviance.gam.colltest2
+
+pred.gam.colltest3<-predict.gam(gam.only.public.colltrain3, newdata=colltest3.forgam, type="response")
+pred.gam.freq.colltest3<-pred.gam.colltest3/colltest3.forgam$Earned_Exposure
+test.deviance.gam.colltest3<-sum(colltest3.forgam$Num_Claims*log(pred.gam.freq.colltest3)-pred.gam.freq.colltest3)
+test.deviance.gam.colltest3
+
+pred.gam.colltest4<-predict.gam(gam.only.public.colltrain4, newdata=colltest4.forgam, type="response")
+pred.gam.freq.colltest4<-pred.gam.colltest4/colltest4.forgam$Earned_Exposure
+test.deviance.gam.colltest4<-sum(colltest4.forgam$Num_Claims*log(pred.gam.freq.colltest4)-pred.gam.freq.colltest4)
+test.deviance.gam.colltest4
+
+pred.gam.colltest5<-predict.gam(gam.only.public.colltrain5, newdata=colltest5.forgam, type="response")
+pred.gam.freq.colltest5<-pred.gam.colltest5/colltest5.forgam$Earned_Exposure
+test.deviance.gam.colltest5<-sum(colltest5.forgam$Num_Claims*log(pred.gam.freq.colltest5)-pred.gam.freq.colltest5)
+test.deviance.gam.colltest5
+
+##set1gam###
+newcolltest1.gam<-cbind(colltest1.forgam,pred.gam.freq.colltest1)
+newcolltest1.gam.bin1<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="0-638"])
+newcolltest1.gam.bin2<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="639-685"])
+newcolltest1.gam.bin3<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="686-715"])
+newcolltest1.gam.bin4<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="716-740"])
+newcolltest1.gam.bin5<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="741-760"])
+newcolltest1.gam.bin6<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="761-782"])
+newcolltest1.gam.bin7<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="783-805"])
+newcolltest1.gam.bin8<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="806-829"])
+newcolltest1.gam.bin9<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="830-856"])
+newcolltest1.gam.bin10<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$Public_Score=="857-997"])
+newcolltest1.gam.bin11<-mean(newcolltest1.gam$pred.gam.freq.colltest1[newcolltest1.gam$colltrain1.nopublic=="1"])
+
+list<-c(newcolltest1.gam.bin11,newcolltest1.gam.bin1,newcolltest1.gam.bin2,newcolltest1.gam.bin3,newcolltest1.gam.bin4,newcolltest1.gam.bin5,newcolltest1.gam.bin6,newcolltest1.gam.bin7,newcolltest1.gam.bin8,newcolltest1.gam.bin9,newcolltest1.gam.bin10)
+plot(list, main="COLL GAM Model in Public Score Bins", xlab="", ylab="Probability" ,type="o", xaxt="n", cex=2, col=3)
+axis(1, at=c(1,2,3,4,5,6,7,8,9,10,11), labels=c("no score","0-638","639-685","686-715","716-740","741-760","761-782","783-805","806-829","830-856","857-997"),las=2)
+
+
+#####interaction####
+poi.glm.interact.set1<-glm(Num_Claims~Public_Score*Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain1)
+
+poi.glm.interact.set2<-glm(Num_Claims~Public_Score*Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain2)
+
+poi.glm.interact.set3<-glm(Num_Claims~Public_Score*Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain3)
+
+poi.glm.interact.set4<-glm(Num_Claims~Public_Score*Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain4)
+
+poi.glm.interact.set5<-glm(Num_Claims~Public_Score*Year+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol,offset=log(Earned_Exposure),family=poisson(link=log), data=pdtrain5)
