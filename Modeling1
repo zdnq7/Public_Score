@@ -1,0 +1,681 @@
+##import the data with numerical car density##
+pd<-read.csv("pdfinaldata.csv", header=T, sep=",")
+
+##exclude missing and invalid observations###
+sb5<-subset(pd, pd$Total_Losses!="" & pd$Veh_Type_Symbol!="")
+sb4<-subset(sb5, sb5$Car_Density!="" & sb5$Prior_BILimit!="")
+sb1<-subset(sb4, sb4$Public_Score!="" & sb4$Credit_Score!="")
+sb1$Driver_Age<-as.numeric(as.character(sb1$Driver_Age))
+sb11<-subset(sb1, sb1$Driver_Age>=16 & sb1$Vehicle_Age>=-1)
+sb<-na.omit(data.frame(sb11))
+str(sb)
+
+
+##make driver age to factors with 5 groups####
+sb$Driver_Age[sb$Driver_Age<=24]="16-24"
+sb$Driver_Age[sb$Driver_Age<=30 & sb$Driver_Age>=25]="25-30"
+sb$Driver_Age[sb$Driver_Age<=40 & sb$Driver_Age>=31]="31-40"
+sb$Driver_Age[sb$Driver_Age<=60 & sb$Driver_Age>=41]="41-60"
+sb$Driver_Age[sb$Driver_Age>=60]="61+"
+sb$Driver_Age<-factor(sb$Driver_Age)
+
+
+################################################
+################ 10 BUCKETS ################
+################################################
+
+
+sum(sb$Earned_Exposure[sb$Credit_Score!=998 & sb$Credit_Score!=999])/10
+# sum(sb$Earned_Exposure[sb$Credit_Score!=998 & sb$Credit_Score!=999])/10 = 23994.62
+
+# Equal total exposure for each bin of Credit_Score scores (10 groups)
+sum(sb$Earned_Exposure[sb$Credit_Score<=611])
+sum(sb$Earned_Exposure[sb$Credit_Score>=612 & sb$Credit_Score<=656])
+sum(sb$Earned_Exposure[sb$Credit_Score>=657 & sb$Credit_Score<=689])
+sum(sb$Earned_Exposure[sb$Credit_Score>=690 & sb$Credit_Score<=714])
+sum(sb$Earned_Exposure[sb$Credit_Score>=715 & sb$Credit_Score<=735])
+sum(sb$Earned_Exposure[sb$Credit_Score>=736 & sb$Credit_Score<=757])
+sum(sb$Earned_Exposure[sb$Credit_Score>=758 & sb$Credit_Score<=781])
+sum(sb$Earned_Exposure[sb$Credit_Score>=782 & sb$Credit_Score<=817])
+sum(sb$Earned_Exposure[sb$Credit_Score>=818 & sb$Credit_Score<=868])
+sum(sb$Earned_Exposure[sb$Credit_Score>=869 & sb$Credit_Score<=997])
+# All close to equal to sum(sb$Earned_Exposure[sb$Credit_Score!=998 & sb$Credit_Score!=999])/10
+
+sb$Credit_Score[sb$Credit_Score<=611]="0-611"
+sb$Credit_Score[sb$Credit_Score>=612 & sb$Credit_Score<=656]="612-656"
+sb$Credit_Score[sb$Credit_Score>=657 & sb$Credit_Score<=689]="657-689"
+sb$Credit_Score[sb$Credit_Score>=690 & sb$Credit_Score<=714]="690-714"
+sb$Credit_Score[sb$Credit_Score>=715 & sb$Credit_Score<=735]="715-735"
+sb$Credit_Score[sb$Credit_Score>=736 & sb$Credit_Score<=757]="736-757"
+sb$Credit_Score[sb$Credit_Score>=758 & sb$Credit_Score<=781]="758-781"
+sb$Credit_Score[sb$Credit_Score>=782 & sb$Credit_Score<=817]="782-817"
+sb$Credit_Score[sb$Credit_Score>=818 & sb$Credit_Score<=868]="818-868"
+sb$Credit_Score[sb$Credit_Score>=869 & sb$Credit_Score<=997]="869-997"
+sb$Credit_Score[sb$Credit_Score==998]="No History"
+sb$Credit_Score[sb$Credit_Score==999]="No Score"
+
+
+Credit_bin1 <- sb$Earned_Exposure[sb$Credit_Score<=611]
+Credit_bin2 <- sb$Earned_Exposure[sb$Credit_Score>=612 & sb$Credit_Score<=656]
+Credit_bin3 <- sb$Earned_Exposure[sb$Credit_Score>=657 & sb$Credit_Score<=689]
+Credit_bin4 <- sb$Earned_Exposure[sb$Credit_Score>=690 & sb$Credit_Score<=714]
+Credit_bin5 <- sb$Earned_Exposure[sb$Credit_Score>=715 & sb$Credit_Score<=735]
+Credit_bin6 <- sb$Earned_Exposure[sb$Credit_Score>=736 & sb$Credit_Score<=757]
+Credit_bin7 <- sb$Earned_Exposure[sb$Credit_Score>=758 & sb$Credit_Score<=781]
+Credit_bin8 <- sb$Earned_Exposure[sb$Credit_Score>=782 & sb$Credit_Score<=817]
+Credit_bin9 <- sb$Earned_Exposure[sb$Credit_Score>=818 & sb$Credit_Score<=868]
+Credit_bin10 <- sb$Earned_Exposure[sb$Credit_Score>=869 & sb$Credit_Score<=997]
+
+sb$Credit_Score<-factor(sb$Credit_Score)
+
+############################################################################
+
+sum(sb$Earned_Exposure[sb$Public_Score!=998 & sb$Public_Score!=999])/10
+# sum(sb$Earned_Exposure[sb$Public_Score!=998 & sb$Public_Score!=999])/10 =  24009.91
+# 24009.91
+
+# Equal total exposure for each bin of Public_Score scores (10 groups)
+sum(sb$Earned_Exposure[sb$Public_Score<=633])
+sum(sb$Earned_Exposure[sb$Public_Score>=634 & sb$Public_Score<=681])
+sum(sb$Earned_Exposure[sb$Public_Score>=682 & sb$Public_Score<=711])
+sum(sb$Earned_Exposure[sb$Public_Score>=712 & sb$Public_Score<=737])
+sum(sb$Earned_Exposure[sb$Public_Score>=738 & sb$Public_Score<=757])
+sum(sb$Earned_Exposure[sb$Public_Score>=758 & sb$Public_Score<=779])
+sum(sb$Earned_Exposure[sb$Public_Score>=780 & sb$Public_Score<=802])
+sum(sb$Earned_Exposure[sb$Public_Score>=803 & sb$Public_Score<=826])
+sum(sb$Earned_Exposure[sb$Public_Score>=827 & sb$Public_Score<=852])
+sum(sb$Earned_Exposure[sb$Public_Score>=853 & sb$Public_Score<=997])
+# All close to equal to sum(sb$Earned_Exposure[sb$Public_Score!=998 & sb$Public_Score!=999])/10
+
+
+sb$Public_Score[sb$Public_Score<=633]="0-633"
+sb$Public_Score[sb$Public_Score>=634 & sb$Public_Score<=681]="634-681"
+sb$Public_Score[sb$Public_Score>=682 & sb$Public_Score<=711]="682-711"
+sb$Public_Score[sb$Public_Score>=712 & sb$Public_Score<=737]="712-737"
+sb$Public_Score[sb$Public_Score>=738 & sb$Public_Score<=757]="738-757"
+sb$Public_Score[sb$Public_Score>=758 & sb$Public_Score<=779]="758-779"
+sb$Public_Score[sb$Public_Score>=780 & sb$Public_Score<=802]="780-802"
+sb$Public_Score[sb$Public_Score>=803 & sb$Public_Score<=826]="803-826"
+sb$Public_Score[sb$Public_Score>=827 & sb$Public_Score<=852]="827-852"
+sb$Public_Score[sb$Public_Score>=853 & sb$Public_Score<=997]="853-997"
+sb$Public_Score[sb$Public_Score==998]="No History"
+sb$Public_Score[sb$Public_Score==999]="No Score"
+
+
+
+Public_bin1 <- sb$Earned_Exposure[sb$Public_Score<=633]
+Public_bin2 <- sb$Earned_Exposure[sb$Public_Score>=634 & sb$Public_Score<=681]
+Public_bin3 <- sb$Earned_Exposure[sb$Public_Score>=682 & sb$Public_Score<=711]
+Public_bin4 <- sb$Earned_Exposure[sb$Public_Score>=712 & sb$Public_Score<=737]
+Public_bin5 <- sb$Earned_Exposure[sb$Public_Score>=738 & sb$Public_Score<=757]
+Public_bin6 <- sb$Earned_Exposure[sb$Public_Score>=758 & sb$Public_Score<=779]
+Public_bin7 <- sb$Earned_Exposure[sb$Public_Score>=780 & sb$Public_Score<=802]
+Public_bin8 <- sb$Earned_Exposure[sb$Public_Score>=803 & sb$Public_Score<=826]
+Public_bin9 <- sb$Earned_Exposure[sb$Public_Score>=827 & sb$Public_Score<=852]
+Public_bin10 <- sb$Earned_Exposure[sb$Public_Score>=853 & sb$Public_Score<=997]
+
+
+sb$Public_Score<-factor(sb$Public_Score)
+
+
+############################################################
+###plot of Public_Score vs. probability of accident###
+####we use the formula: freq=claim count/total earned expo######
+###########################################################
+Freq_Public_bin1<-length(which(sb$Public_Score=="0-633" & sb$Num_Claims>=1))/sum(Public_bin1)
+Freq_Public_bin2<-length(which(sb$Public_Score=="634-681" & sb$Num_Claims>=1))/sum(Public_bin2)
+Freq_Public_bin3<-length(which(sb$Public_Score=="682-711" & sb$Num_Claims>=1))/sum(Public_bin3)
+Freq_Public_bin4<-length(which(sb$Public_Score=="712-737" & sb$Num_Claims>=1))/sum(Public_bin4)
+Freq_Public_bin5<-length(which(sb$Public_Score=="738-757" & sb$Num_Claims>=1))/sum(Public_bin5)
+Freq_Public_bin6<-length(which(sb$Public_Score=="758-779" & sb$Num_Claims>=1))/sum(Public_bin6)
+Freq_Public_bin7<-length(which(sb$Public_Score=="780-802" & sb$Num_Claims>=1))/sum(Public_bin7)
+Freq_Public_bin8<-length(which(sb$Public_Score=="803-826" & sb$Num_Claims>=1))/sum(Public_bin8)
+Freq_Public_bin9<-length(which(sb$Public_Score=="827-852" & sb$Num_Claims>=1))/sum(Public_bin9)
+Freq_Public_bin10<-length(which(sb$Public_Score=="853-997" & sb$Num_Claims>=1))/sum(Public_bin10)
+Freq_Public_Score998<-NaN
+Freq_Public_Score999<-length(which(sb$Public_Score=="No Score" & sb$Num_Claims>=1))/sum(sb$Earned_Exposure[sb$Public_Score=="No Score"])
+
+a<-c(Freq_Public_Score999,Freq_Public_Score998,Freq_Public_bin1,Freq_Public_bin2,Freq_Public_bin3,Freq_Public_bin4,Freq_Public_bin5,Freq_Public_bin6,Freq_Public_bin7,Freq_Public_bin8,Freq_Public_bin9,Freq_Public_bin10)
+
+###plot of Credit_Score vs. probability of accident###
+Freq_Credit_bin1<-length(which(sb$Credit_Score=="0-611" & sb$Num_Claims>=1))/sum(Credit_bin1)
+Freq_Credit_bin2<-length(which(sb$Credit_Score=="612-656" & sb$Num_Claims>=1))/sum(Credit_bin2)
+Freq_Credit_bin3<-length(which(sb$Credit_Score=="657-689" & sb$Num_Claims>=1))/sum(Credit_bin3)
+Freq_Credit_bin4<-length(which(sb$Credit_Score=="690-714" & sb$Num_Claims>=1))/sum(Credit_bin4)
+Freq_Credit_bin5<-length(which(sb$Credit_Score=="715-735" & sb$Num_Claims>=1))/sum(Credit_bin5)
+Freq_Credit_bin6<-length(which(sb$Credit_Score=="736-757" & sb$Num_Claims>=1))/sum(Credit_bin6)
+Freq_Credit_bin7<-length(which(sb$Credit_Score=="758-781" & sb$Num_Claims>=1))/sum(Credit_bin7)
+Freq_Credit_bin8<-length(which(sb$Credit_Score=="782-817" & sb$Num_Claims>=1))/sum(Credit_bin8)
+Freq_Credit_bin9<-length(which(sb$Credit_Score=="818-868" & sb$Num_Claims>=1))/sum(Credit_bin9)
+Freq_Credit_bin10<-length(which(sb$Credit_Score=="869-997" & sb$Num_Claims>=1))/sum(Credit_bin10)
+Freq_Credit_Score998<-length(which(sb$Credit_Score=="No History" & sb$Num_Claims>=1))/sum(sb$Earned_Exposure[sb$Credit_Score=="No History"])
+Freq_Credit_Score999<-length(which(sb$Credit_Score=="No Score" & sb$Num_Claims>=1))/sum(sb$Earned_Exposure[sb$Credit_Score=="No Score"])
+
+
+
+
+a1<-c(Freq_Credit_Score998,Freq_Credit_Score999,Freq_Credit_bin1,Freq_Credit_bin2,Freq_Credit_bin3,Freq_Credit_bin4,Freq_Credit_bin5,Freq_Credit_bin6,Freq_Credit_bin7,Freq_Credit_bin8,Freq_Credit_bin9,Freq_Credit_bin10)
+
+###PLOT###
+plot(a1, main="Probability of Claim in Credit_Score/Public_Score Score Ranges", xlab="Score From Low to High", ylab="Probabilty",cex=2, type="o", col=3, lwd=7, )
+lines(a,  type="o", col=2, lwd=7)
+legend("topright", legend=c("1 = no history", "2 = no score", "3 = 000-633(Pu), 000-611(Cr)", "4 = 634-681(Pu), 612-656(Cr)", "5 = 682-711(Pu), 657-689(Cr)",
+"6 = 712-737(Pu), 690-714(Cr)", "7 = 738-757(Pu), 715-735(Cr)", "8 = 758-779(Pu), 736-757(Cr)", "9 = 780-802(Pu), 758-781(Cr)", "10 = 803-826(Pu), 782-817(Cr)",
+"11 = 827-852(Pu), 818-868(Cr)", "12 = 853-997(Pu), 869-997(Cr)", "red = Public score", "green = Credit score"))
+
+
+
+
+
+###cross_validation 5 subsets####
+set1<-sb[0:190965,]
+set2<-sb[190966: 381930,]
+set3<-sb[381931: 572895,]
+set4<-sb[572896: 763860,]
+set5<-sb[763861: 954825,]
+
+
+
+
+##############################
+train<-sb[1:783860,]
+test<-sb[783861: 954825,]
+##############################
+
+
+
+############################################################
+####GLM binomial fit number of claims for each subset####
+############################################################
+bin.glm.full.set1<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set1)
+
+bin.glm.full.set2<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set2)
+
+bin.glm.full.set3<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set3)
+
+bin.glm.full.set4<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set4)
+
+bin.glm.full.set5<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set5)
+
+coef.mean.full<-(coef(bin.glm.full.set1)+coef(bin.glm.full.set2)+coef(bin.glm.full.set3)+coef(bin.glm.full.set4)+coef(bin.glm.full.set5))/5
+coef1<-cbind(coef(bin.glm.full.set1),coef(bin.glm.full.set2),coef(bin.glm.full.set3),coef(bin.glm.full.set4),coef(bin.glm.full.set5))
+min.coef<-cbind(coef(bin.glm.full.set1))
+min.coef[,1]<-NaN
+min.coef[c(1),]<-min(coef1[c(1),])
+min.coef[c(2),]<-min(coef1[c(2),])
+min.coef[c(3),]<-min(coef1[c(3),])
+min.coef[c(4),]<-min(coef1[c(4),])
+min.coef[c(5),]<-min(coef1[c(5),])
+min.coef[c(6),]<-min(coef1[c(6),])
+min.coef[c(7),]<-min(coef1[c(7),])
+min.coef[c(8),]<-min(coef1[c(8),])
+min.coef[c(9),]<-min(coef1[c(9),])
+min.coef[c(10),]<-min(coef1[c(10),])
+min.coef[c(11),]<-min(coef1[c(11),])
+min.coef[c(12),]<-min(coef1[c(12),])
+min.coef[c(13),]<-min(coef1[c(13),])
+min.coef[c(14),]<-min(coef1[c(14),])
+min.coef[c(15),]<-min(coef1[c(15),])
+min.coef[c(16),]<-min(coef1[c(16),])
+min.coef[c(17),]<-min(coef1[c(17),])
+min.coef[c(18),]<-min(coef1[c(18),])
+min.coef[c(19),]<-min(coef1[c(19),])
+min.coef[c(20),]<-min(coef1[c(20),])
+min.coef[c(21),]<-min(coef1[c(21),])
+min.coef[c(22),]<-min(coef1[c(22),])
+min.coef[c(23),]<-min(coef1[c(23),])
+min.coef[c(24),]<-min(coef1[c(24),])
+min.coef[c(25),]<-min(coef1[c(25),])
+min.coef[c(26),]<-min(coef1[c(26),])
+min.coef[c(27),]<-min(coef1[c(27),])
+min.coef[c(28),]<-min(coef1[c(28),])
+min.coef[c(29),]<-min(coef1[c(29),])
+min.coef[c(30),]<-min(coef1[c(30),])
+min.coef[c(31),]<-min(coef1[c(31),])
+min.coef[c(32),]<-min(coef1[c(32),])
+min.coef[c(33),]<-min(coef1[c(33),])
+min.coef[c(34),]<-min(coef1[c(34),])
+min.coef[c(35),]<-min(coef1[c(35),])
+min.coef[c(36),]<-min(coef1[c(36),])
+min.coef[c(37),]<-min(coef1[c(37),])
+min.coef[c(38),]<-min(coef1[c(38),])
+min.coef[c(39),]<-min(coef1[c(39),])
+min.coef[c(41),]<-min(coef1[c(41),])
+min.coef[c(42),]<-min(coef1[c(42),])
+min.coef[c(43),]<-min(coef1[c(43),])
+min.coef[c(44),]<-min(coef1[c(44),])
+min.coef[c(45),]<-min(coef1[c(45),])
+min.coef[c(46),]<-min(coef1[c(46),])
+min.coef[c(47),]<-min(coef1[c(47),])
+min.coef[c(48),]<-min(coef1[c(48),])
+min.coef[c(49),]<-min(coef1[c(49),])
+min.coef[c(50),]<-min(coef1[c(50),])
+min.coef[c(51),]<-min(coef1[c(51),])
+min.coef[c(52),]<-min(coef1[c(52),])
+min.coef[c(53),]<-min(coef1[c(53),])
+
+max.coef<-cbind(coef(bin.glm.full.set1))
+max.coef[,1]<-NaN
+max.coef[c(1),]<-max(coef1[c(1),])
+max.coef
+max.coef[c(2),]<-max(coef1[c(2),])
+max.coef[c(3),]<-max(coef1[c(3),])
+max.coef[c(4),]<-max(coef1[c(4),])
+max.coef[c(5),]<-max(coef1[c(5),])
+max.coef[c(6),]<-max(coef1[c(6),])
+max.coef[c(7),]<-max(coef1[c(7),])
+max.coef[c(8),]<-max(coef1[c(8),])
+max.coef[c(9),]<-max(coef1[c(9),])
+max.coef[c(10),]<-max(coef1[c(10),])
+max.coef[c(11),]<-max(coef1[c(11),])
+max.coef[c(12),]<-max(coef1[c(12),])
+max.coef[c(13),]<-max(coef1[c(13),])
+max.coef[c(14),]<-max(coef1[c(14),])
+max.coef[c(15),]<-max(coef1[c(15),])
+max.coef[c(16),]<-max(coef1[c(16),])
+max.coef[c(17),]<-max(coef1[c(17),])
+max.coef[c(18),]<-max(coef1[c(18),])
+max.coef[c(19),]<-max(coef1[c(19),])
+max.coef[c(20),]<-max(coef1[c(20),])
+max.coef[c(21),]<-max(coef1[c(21),])
+max.coef[c(22),]<-max(coef1[c(22),])
+max.coef[c(23),]<-max(coef1[c(23),])
+max.coef[c(24),]<-max(coef1[c(24),])
+max.coef[c(25),]<-max(coef1[c(25),])
+max.coef[c(26),]<-max(coef1[c(26),])
+max.coef[c(27),]<-max(coef1[c(27),])
+max.coef[c(28),]<-max(coef1[c(28),])
+max.coef[c(29),]<-max(coef1[c(29),])
+max.coef[c(30),]<-max(coef1[c(30),])
+max.coef[c(31),]<-max(coef1[c(31),])
+max.coef[c(32),]<-max(coef1[c(32),])
+max.coef[c(33),]<-max(coef1[c(33),])
+max.coef[c(34),]<-max(coef1[c(34),])
+max.coef[c(35),]<-max(coef1[c(35),])
+max.coef[c(36),]<-max(coef1[c(36),])
+max.coef[c(37),]<-max(coef1[c(37),])
+max.coef[c(38),]<-max(coef1[c(38),])
+max.coef[c(39),]<-max(coef1[c(39),])
+max.coef[c(41),]<-max(coef1[c(41),])
+max.coef[c(42),]<-max(coef1[c(42),])
+max.coef[c(43),]<-max(coef1[c(43),])
+max.coef[c(44),]<-max(coef1[c(44),])
+max.coef[c(45),]<-max(coef1[c(45),])
+max.coef[c(46),]<-max(coef1[c(46),])
+max.coef[c(47),]<-max(coef1[c(47),])
+max.coef[c(48),]<-max(coef1[c(48),])
+max.coef[c(49),]<-max(coef1[c(49),])
+max.coef[c(50),]<-max(coef1[c(50),])
+max.coef[c(51),]<-max(coef1[c(51),])
+max.coef[c(52),]<-max(coef1[c(52),])
+max.coef[c(53),]<-max(coef1[c(53),])
+
+coef.dotplot.full<-cbind(coef.mean.full, min.coef, max.coef)
+library(lattice)
+dotplot(coef.dotplot.full[c(2:20,22,21),], pch=c("x","l","l"), cex=c(1,2,2), main="coefficients of full model")
+
+######################
+######################
+#####################
+bin.glm.nobothscore.set1<-glm(pmin(1,Num_Claims)~PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set1)
+
+bin.glm.nobothscore.set2<-glm(pmin(1,Num_Claims)~PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set2)
+
+bin.glm.nobothscore.set3<-glm(pmin(1,Num_Claims)~PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set3)
+
+bin.glm.nobothscore.set4<-glm(pmin(1,Num_Claims)~PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set4)
+
+bin.glm.nobothscore.set5<-glm(pmin(1,Num_Claims)~PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set5)
+
+
+##############
+bin.glm.nopublic.set1<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set1)
+
+bin.glm.nopublic.set2<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set2)
+
+bin.glm.nopublic.set3<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set3)
+
+bin.glm.nopublic.set4<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set4)
+
+bin.glm.nopublic.set5<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set5)
+
+#######
+
+bin.glm.nocredit.set1<-glm(pmin(1,Num_Claims)~Public_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set1)
+
+bin.glm.nocredit.set2<-glm(pmin(1,Num_Claims)~Public_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set2)
+
+bin.glm.nocredit.set3<-glm(pmin(1,Num_Claims)~Public_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set3)
+
+bin.glm.nocredit.set4<-glm(pmin(1,Num_Claims)~Public_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set4)
+
+bin.glm.nocredit.set5<-glm(pmin(1,Num_Claims)~Public_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set5)
+anova(bin.glm.nobothscore.set1, bin.glm.nopublic.set1, test="Chisq")
+anova(bin.glm.nobothscore.set2, bin.glm.nopublic.set2, test="Chisq")
+anova(bin.glm.nobothscore.set3, bin.glm.nopublic.set3, test="Chisq")
+anova(bin.glm.nobothscore.set4, bin.glm.nopublic.set4, test="Chisq")
+anova(bin.glm.nobothscore.set5, bin.glm.nopublic.set5, test="Chisq")
+
+anova(bin.glm.nobothscore.set1, bin.glm.nocredit.set1, test="Chisq")
+anova(bin.glm.nobothscore.set2, bin.glm.nocredit.set2, test="Chisq")
+anova(bin.glm.nobothscore.set3, bin.glm.nocredit.set3, test="Chisq")
+anova(bin.glm.nobothscore.set4, bin.glm.nocredit.set4, test="Chisq")
+anova(bin.glm.nobothscore.set5, bin.glm.nocredit.set5, test="Chisq")
+
+####################
+###interaction#########
+####################
+bin.glm.full.interaction.train<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles++RatedMarital+NumDrivers+Driver_Age*Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age*Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+
+bin.glm.full.interaction.set2<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles++RatedMarital+NumDrivers+Driver_Age*Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age*Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set2)
+
+bin.glm.full.interaction.set3<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles++RatedMarital+NumDrivers+Driver_Age*Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age*Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set3)
+
+bin.glm.full.interaction.set4<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles++RatedMarital+NumDrivers+Driver_Age*Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age*Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set4)
+
+bin.glm.full.interaction.set5<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles++RatedMarital+NumDrivers+Driver_Age*Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age*Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set5)
+
+deviance(bin.glm.full.set1)
+deviance(bin.glm.full.interaction.set1)
+deviance(bin.glm.full.set2)
+deviance(bin.glm.full.interaction.set2)
+deviance(bin.glm.full.set3)
+deviance(bin.glm.full.interaction.set3)
+deviance(bin.glm.full.set4)
+deviance(bin.glm.full.interaction.set4)
+deviance(bin.glm.full.set5)
+deviance(bin.glm.full.interaction.set5)
+
+######################################################
+####coefficient plot##########
+####issue: too hard to identify each set#####
+####works good with only 1 or two set of coefficients#####
+############################################################
+library(arm)
+coefplot(bin.glm.full.set1, xlim=c(-1,1))
+coefplot(bin.glm.full.set2, col.pts=2,add=T, offset=0.5)
+coefplot(bin.glm.full.set3, col.pts=3,add=T)
+coefplot(bin.glm.full.set4, col.pts=4,add=T)
+coefplot(bin.glm.full.set5, col.pts=5,add=T)
+
+coef.full<-cbind(coef(bin.glm.full.set1),coef(bin.glm.full.set2),coef(bin.glm.full.set3),coef(bin.glm.full.set4),coef(bin.glm.full.set5))
+
+
+####no public socre###
+bin.glm.full.nopublic.set1<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set1)
+
+bin.glm.full.nopublic.set2<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set2)
+
+bin.glm.full.nopublic.set3<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set3)
+
+bin.glm.full.nopublic.set4<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set4)
+
+bin.glm.full.nopublic.set5<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=set5)
+
+coefplot(bin.glm.full.nopublic.set1, xlim=c(-1,1))
+coefplot(bin.glm.full.nopublic.set2, col.pts=2,add=T, offset=0.5)
+coefplot(bin.glm.full.nopublic.set3, col.pts=3,add=T)
+coefplot(bin.glm.full.nopublic.set4, col.pts=4,add=T)
+coefplot(bin.glm.full.nopublic.set5, col.pts=5,add=T)
+
+
+
+########################################################################
+bin.glm.full.interaction.train<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+RatedMarital+NumDrivers+Driver_Age*Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age*Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+
+pred<-predict.glm(bin.glm.full.interaction.train, newdata=data.frame(test), se=T, type="response")
+pred.prob<-pred$fit
+newtest<-cbind(test,pred.prob)
+bin1<-mean(newtest$pred.prob[newtest$Public_Score=="0-633"])
+bin2<-mean(newtest$pred.prob[newtest$Public_Score=="634-681"])
+bin3<-mean(newtest$pred.prob[newtest$Public_Score=="682-711"])
+bin4<-mean(newtest$pred.prob[newtest$Public_Score=="712-737"])
+bin5<-mean(newtest$pred.prob[newtest$Public_Score=="738-757"])
+bin6<-mean(newtest$pred.prob[newtest$Public_Score=="758-779"])
+bin7<-mean(newtest$pred.prob[newtest$Public_Score=="780-802"])
+bin8<-mean(newtest$pred.prob[newtest$Public_Score=="803-826"])
+bin9<-mean(newtest$pred.prob[newtest$Public_Score=="827-852"])
+bin10<-mean(newtest$pred.prob[newtest$Public_Score=="853-997"])
+bin11<-mean(newtest$pred.prob[newtest$Public_Score=="No Score"])
+
+
+list<-c(bin11,bin1,bin2,bin3,bin4,bin5,bin6,bin7,bin8,bin9,bin10)
+plot(list, main="PD Interaction Model Average Predicted Prob. in Public Score Bins", xlab="", ylab="Probability" ,type="o", xaxt="n", cex=2, col=3)
+axis(1, at=c(1,2,3,4,5,6,7,8,9,10,11), labels=c("no score","0-633","634-681","682-711","712-737","738-757","758-779","780-802","803-826","827-852","853-997"),las=2)
+
+
+
+####GAM######
+library(gam)
+gam.model.nopublic.interaction<-gam(pmin(1,Num_Claims)~s(Credit_Score,4)+PD_Limit+NumVehicles+RatedMarital+NumDrivers+Driver_Age*Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age*Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+gam.model.nopublic<-gam(pmin(1,Num_Claims)~s(Credit_Score,4)+PD_Limit+NumVehicles+RatedMarital+NumDrivers+Driver_Age+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+
+pred.gam<-predict.gam(gam.model.nopublic.interaction, newdata=data.frame(test), se=T, type="response")
+newtest.gam<-cbind(test,pred.gam)
+bin1.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="0-633"])
+bin2.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="634-681"])
+bin3.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="682-711"])
+bin4.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="712-737"])
+bin5.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="738-757"])
+bin6.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="758-779"])
+bin7.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="758-779"])
+bin8.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="803-826"])
+bin9.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="827-852"])
+bin10.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="853-997"])
+bin11.1<-mean(newtest.gam$pred.gam[newtest.gam$Public_Score=="No Score"])
+
+list<-c(bin11.1,bin1.1,bin2.1,bin3.1,bin4.1,bin5.1,bin6.1,bin7.1,bin8.1,bin9.1,bin10.1)
+plot(list, main="PD GAM Model Average Predicted Prob. in Public Score Bins", xlab="", ylab="Probability" ,type="o", xaxt="n", cex=2, col=3)
+axis(1, at=c(1,2,3,4,5,6,7,8,9,10,11), labels=c("no score","0-633","634-681","682-711","712-737","738-757","758-779","780-802","803-826","827-852","853-997"),las=2)
+
+
+#################################################
+####other scripts ##########
+#################################
+bin.glm.full.train<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+
+bin.glm.full.nocredit<-glm(pmin(1,Num_Claims)~Public_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+
+bin.glm.full.nopublic<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+
+
+
+bin.glm.full.interaction.train<-glm(pmin(1,Num_Claims)~Public_Score+Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age*Driver_Gender+RatedMarital+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age*Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+
+pred<-predict.glm(bin.glm.full.nopublic, newdata=data.frame(test), se=T, type="response")
+
+test.deviance<-sum(test$Num_Claims*log(pred$fit)+(1-test$Num_Claims)*log(1-pred$fit))
+test.deviance
+
+anova(bin.glm.full.train,test="Chisq")
+pred<-predict.glm(bin.glm.full.interaction.train, newdata=data.frame(test), se=T, type="response")
+
+test.deviance<-sum(test$Num_Claims*log(pred$fit)+(1-test$Num_Claims)*log(1-pred$fit))
+test.deviance
+
+bin.glm.full.nopublic<-glm(pmin(1,Num_Claims)~Credit_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+bin.glm.full.nocredit<-glm(pmin(1,Num_Claims)~Public_Score+PD_Limit+NumVehicles+NumDrivers+Driver_Age+RatedMarital+Driver_Gender+Driver_Point+Insurance_Persistency+Prior_BILimit+Car_Density+Vehicle_Age+Veh_Type_Symbol+Earned_Exposure,family=binomial(link=logit), data=train)
+
+summary(fitglm_nopublic)
+
+coef1<-cbind(coef(bin.glm.full), coef(bin.glm.full.nopublic), confint.default(bin.glm.full), confint.default(bin.glm.full))  # make 2 columns
+coef1[,2] <- NaN
+coef1[,5] <- NaN
+coef1[,6] <- NaN
+
+coef1[names(coef(bin.glm.full.nopublic)),2] <- coef(bin.glm.full.nopublic) 
+coef1[names(confint.default(bin.glm.full.nopublic)[,1]),5] <- confint.default(bin.glm.full.nopublic)[,1]
+coef1[names(confint.default(bin.glm.full.nopublic)[,2]),6] <- confint.default(bin.glm.full.nopublic)[,2]
+coef1
+
+library(lattice)
+
+dotplot(coef1[c(6,5,2,7,4,3,8:45),],cex=c(1,2,2),pch=c("x","l","l"),col=c(2,4,4),xlim=c(-1,1), lwd=5)
+
+coef1<-cbind(coef(bin.glm.full.set1),coef(bin.glm.full.set2),coef(bin.glm.full.set3),coef(bin.glm.full.set4),coef(bin.glm.full.set5))
+dotplot(coef1)
+#For plotting, try dotplot in the lattice function which has a myriad of
+##options. The basic you can try is something like:#
+
+
+
+par(mfrow=c(1,2))
+dotchart(coef(fitglm), pch=19, gpch=15, lcolor=2, cex=0.7,main="binomial glm all coefficients")
+abline(v=0, col="green", lwd=2)
+dotchart(coef(fitglm_nopublic), pch=19, gpch=15, lcolor=2, cex=0.7,main="binomial glm coefficients w/o public score")
+abline(v=0, col="green", lwd=2)
+
+confint.default(fitglm)
+pchisq(fitglm$deviance,df=699955, lower.tail = F)
+p_nopublic<-pchisq(fitglm_nopublic$deviance,df=699955, lower.tail = F)
+
+anova(fitglm, test="Chisq")
+anova(fitglm_nopublic, test="Chisq")
+
+
+anova( fitglm_nopublic,fitglm, test="Chisq")
+
+
+
+
+
+#################################################
+
+fitglm_poi<-glm(num_claims~year+vt+va+public+as.factor(pv2)+persist+penalty_pts+pri_bil+num_veh+num_drivers+married+gender+driver_age+credit+as.factor(cv2)+PD_Limit+car_den+ee, family=poisson(link=log), data=train)
+est_coefs_poi<-exp(coef(fitglm_poi))
+dotchart(est_coefs_poi, pch=19, gpch=15, lcolor=2, cex=0.7,main="poisson glm all coefficients")
+pred<-predict.glm(fitglm, newdata=data.frame(test)[1:10,], se=T, type="response")
+pred
+with(train$num_claims, )
+with(preddat, lines(0:1000, exp(fit)/(1+exp(fit)), col="blue"))
+with(preddat, lines(0:1000, exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)), lty=2))
+with(preddat, lines(0:1000, exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)), lty=2))
+
+plotmo(fitglm, ylim=c(0,0.1))
+drop1(fitglm,test="none")
+summary(fitglm)
+fitglm_nopublic<-glm(pmin(1,num_claims)~year+vt+va+pri_bil+persist+penalty_pts+num_veh+num_drivers+married+gender+driver_age+credit+as.factor(cv2)+PD_Limit+car_den, family=binomial(link=logit), data=train)
+summary(fitglm_nopublic)
+fitglm1<-glm(fitglm,.~.-public-as.factor(pv2), family=binomial(link=logit), data=train)
+summary(fitglm1)
+anova(fitglm, test="Chisq")
+fitted(fitglm)
+plot(exp(fitted(fitglm)))
+
+drop1(fitglm, test="F")
+
+
+
+
+###GLM Gamma fit total losses
+fittotloss<-glm(totloss~year+vt+va+public+as.factor(pv2)+pri_bil+persist+penalty_pts+num_veh+num_drivers+married+gender+driver_age+credit+as.factor(cv2)+PD_Limit+car_den, data=sb, family=Gamma)
+summary(fittotloss)
+anova(fittotloss, test="Chisq")
+
+
+##use the model to predict the first six value in testing set##
+pred<-predict(fitglm, newdata=data.frame(test)[1:10,], se=T, type="response")
+pred_nopublic<-predict(fitglm_nopublic, newdata=data.frame(test)[1:10,], se=T, type="response")
+pred_nopublic
+pred$fit
+###the first several observations of test and train$$$
+head(test)
+head(train)
+
+###policy variables##
+##policy glmnet predictors###
+poli_glmnet_preds<-subset(train, select=c(year, public, as.factor(pv2), pri_bil,persist,num_veh,num_drivers,married,credit,as.factor(cv2),car_den))
+glmnetpolicy<-glmnet(as.matrix(poli_glmnet_preds), train$num_claims, family="poisson")
+fitglmpolicy<-glm(pmin(1,num_claims)~year+public+as.factor(pv2)+pri_bil+persist+num_veh+num_drivers+married+credit+as.factor(cv2)+car_den, family=binomial(link=logit), data=train)
+fitglmpolicy_interaction<-glm(pmin(1,num_claims)~(year+public+as.factor(pv2)+pri_bil+persist+num_veh+num_drivers+married+credit+as.factor(cv2)+car_den)^2, family=binomial(link=logit), data=train)
+
+summary(fitglmpolicy)
+plotmo(fitglmpolicy)
+bigfitglmpolicy<-bigglm(pmin(1,num_claims)~year+public+as.factor(pv2)+pri_bil+persist+num_veh+num_drivers+married+credit+as.factor(cv2)+car_den, family=binomial(link=logit), data=train)
+
+summary(fitglmpolicy)
+
+##driver variables
+fitglmdriver<-glm(pmin(1,num_claims)~penalty_pts+gender+driver_age, family=binomial(link=logit), data=train)
+summary(fitglmdriver)
+fitglmdriver_interaction<-glm(pmin(1,num_claims)~(penalty_pts+gender+driver_age)^2, family=binomial(link=logit), data=train)
+
+plotmo(fitglmdriver_interaction)
+bigfitglmdriver<-bigglm(pmin(1,num_claims)~(penalty_pts+gender+driver_age)^2, family=binomial(link=logit), data=train)
+summary(bigfitglmdriver)
+
+##vehicle varables
+fitglmvehicle<-glm(pmin(1,num_claims)~PD_Limit+va+ee, family=binomial(link=logit), data=train)
+summary(fitglmvehicle)
+plotmo(fitglmvehicle)
+##interaction
+fitglmvehicle_interact<-glm(pmin(1,num_claims)~(PD_Limit+va+ee)^2, family=binomial(link=logit), data=train)
+summary(fitglmvehicle_interact)
+library(plotmo)
+plotmo(fitglmvehicle_interact)
+##big glm for vehicle variables
+bigfitglmvehicle<-bigglm(pmin(1,num_claims)~PD_Limit+va+ee, family=binomial(link=logit), data=train)
+summary(bigfitglmvehicle)
+
+
+fitglm<-glm(pmin(1,num_claims)~public+as.factor(pv2)+penalty_pts+num_drivers+married+gender+driver_age+credit+as.factor(cv2), family=binomial, data=train)
+summary(fitglm)
+
+cor.test(train$public,train$driver_age, method="pearson")
+
+##gam###
+library(gam)
+gamdrivers<-gam(pmin(1,num_claims)~s(driver_age)+gender+penalty_pts, family=binomial, data=train)
+summary(gamdrivers)
+coef(gamdrivers)
+plot(gamdrivers, pages=1, residuals=T, pch=19, cex=0.25, scheme=1, col="blue", shade=T, shade.col=8)
+
+library(plotmo)
+#gam#
+glmnet
+cv.glmnet
+#gam(numclaims~s(~)+...,...), in s(), only use continues var#
+
+library(MASS)
+library(RColorBrewer)
+plot(train$public, train$credit, pch=19, cex=0.4)
+contour(z, drawlabels=FALSE, nlevels=k, col=my.cols, add=TRUE)
+
+
+
+
+
+
+
+
+####scatter plot###
+
+plot(sb$credit, sb$public, xlab = 'Credit Score', ylab = 'Public Score')
+#Smooth Scatter plot with darker colors for higher densities
+#With 998 and 999
+smoothScatter(sb$credit, sb$public, nbin=200, bandwidth=3, colramp = colorRampPalette(c("white", "blue", "black")), xlab="Credit Score", ylab="Public Score")
+#Without 998 and 999
+smoothScatter(sb$credit, sb$public, nbin=200, bandwidth=3, colramp = colorRampPalette(c("white", "blue", "black")), xlab="Credit Score", ylab="Public Score", xlim=c(300,997), ylim=c(300,998))
+
+
+
+####some ggplot###
+library(ggplot2)
+pred1<-predict.glm(fitglm, newdata=data.frame(set2)[1,6,], se=T, type="response")
+
+newdata<-cbind(data.frame(set2),pred1)
+newdata<-within(newdata, {
+	PredictedProb<-plogis(fit)
+	LL<-plogis(fit-(1.96*se.fit))
+	UL<-plogis(fit+(1.96*se.fit))
+	})
+head(newdata)
+ggplot(newdata, aes(x=credit, y=PredictedProb))+geom_ribbon(aes(ymin=LL, ymax=UL, fill=public), alpha=0.2)+geom_line(aes(color=public), size=1)
+
+########################################################################
+####split data into training and testing set using random selection####
+splitdata<-split(sb[1:nrow(sb),], sample(rep(1:5, as.integer(nrow(sb)/5))))
+test<-splitdata[[4]]
+train<-rbind(splitdata[[1]],splitdata[[5]],splitdata[[3]],splitdata[[2]])
+str(train)
+str(test)
